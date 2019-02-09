@@ -1,0 +1,10 @@
+package: github.com/h3poteto/kube-job
+import:
+- package: k8s.io/apimachinery
+  subpackages:
+  - pkg/apis/meta/v1
+- package: k8s.io/client-go
+  version: ~10.0.0
+  subpackages:
+  - kubernetes
+  - tools/clientcmd
