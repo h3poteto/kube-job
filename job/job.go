@@ -1,10 +1,11 @@
 package job
 
 import (
-	"encoding/json"
 	"io/ioutil"
 
+	shellwords "github.com/mattn/go-shellwords"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
 	"k8s.io/api/batch/v1"
@@ -14,17 +15,15 @@ import (
 type Job struct {
 	client     *kubernetes.Clientset
 	CurrentJob *v1.Job
+	Commands   []string
 }
 
-func NewJob(configFile string, currentFile string, overrideJson string) (*Job, error) {
+func NewJob(configFile string, currentFile string, command string) (*Job, error) {
 	if len(configFile) == 0 {
 		return nil, errors.New("Config file is required")
 	}
 	if len(currentFile) == 0 {
 		return nil, errors.New("Template file is required")
-	}
-	if len(overrideJson) == 0 {
-		return nil, errors.New("Override json is required")
 	}
 	client, err := newClient(configFile)
 	if err != nil {
@@ -40,21 +39,27 @@ func NewJob(configFile string, currentFile string, overrideJson string) (*Job, e
 		return nil, err
 	}
 
-	// Patch override json does not offten contain kind and Version.
-	// So I forgive to override JobSpec.
-	var overrideJob v1.JobSpec
-	if err := json.Unmarshal([]byte(overrideJson), &overrideJob); err != nil {
+	p := shellwords.NewParser()
+	commands, err := p.Parse(command)
+	if err != nil {
 		return nil, err
 	}
 
 	return &Job{
 		client,
 		&currentJob,
-		&overrideJob,
+		commands,
 	}, nil
 }
 
-// func (j *Job) Run(namespace string, name string) {
+func (j *Job) Run() error {
+	currentJob := j.CurrentJob.DeepCopy()
+	currentJob.Spec.Template.Spec.Containers[0].Command = j.Commands
 
-// 	j.client.BatchV1().Jobs(namespace).Patch(name, types.JSONPatchType)
-// }
+	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(currentJob)
+	if err != nil {
+		return err
+	}
+	log.Infof("Starting job: %v", *resultJob)
+	return nil
+}

@@ -1,6 +1,10 @@
-hash: 63d975450f8b7d1b5f24d6d6b6ef90589e44f8767aa1e7fa93b351ecccbad493
-updated: 2019-02-13T13:49:33.334359981+09:00
+hash: 003541cce978e895cf4dca06c45dc730df7891086cfb58d90df233d3c46fae3e
+updated: 2019-02-13T15:20:10.806252282+09:00
 imports:
+- name: github.com/davecgh/go-spew
+  version: 782f4967f2dc4564575ca782fe2d04090b5faca8
+  subpackages:
+  - spew
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
 - name: github.com/ghodss/yaml
@@ -54,6 +58,8 @@ imports:
   version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
 - name: github.com/magiconair/properties
   version: 7757cc9fdb852f7579b24170bcacda2c7471bb6a
+- name: github.com/mattn/go-shellwords
+  version: 3c0603ff9671145648171317c30371d805656003
 - name: github.com/mitchellh/mapstructure
   version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
 - name: github.com/modern-go/concurrent
@@ -194,15 +200,18 @@ imports:
   - pkg/util/framer
   - pkg/util/intstr
   - pkg/util/json
+  - pkg/util/mergepatch
   - pkg/util/naming
   - pkg/util/net
   - pkg/util/runtime
   - pkg/util/sets
+  - pkg/util/strategicpatch
   - pkg/util/validation
   - pkg/util/validation/field
   - pkg/util/yaml
   - pkg/version
   - pkg/watch
+  - third_party/forked/golang/json
   - third_party/forked/golang/reflect
 - name: k8s.io/client-go
   version: e64494209f554a6723674bd494d69445fb76a1d4
@@ -264,6 +273,10 @@ imports:
   - util/integer
 - name: k8s.io/klog
   version: 8139d8cb77af419532b33dfa7dd09fbc5f1d344f
+- name: k8s.io/kube-openapi
+  version: c59034cc13d587f5ef4e85ca0ade0c1866ae8e1d
+  subpackages:
+  - pkg/util/proto
 - name: sigs.k8s.io/yaml
   version: fd68e9863619f6ec2fdd8625fe1f02e7c877e480
 testImports: []

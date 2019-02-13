@@ -7,9 +7,10 @@ import (
 )
 
 type runJob struct {
-	patch        string
+	command      string
 	templateFile string
 	timeout      int
+	cleanup      bool
 }
 
 func runJobCmd() *cobra.Command {
@@ -22,8 +23,9 @@ func runJobCmd() *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.StringVarP(&r.templateFile, "template-file", "f", "", "Job template file")
-	flags.StringVarP(&r.patch, "patch", "p", "", "JSON which you want to override the template file")
+	flags.StringVarP(&r.command, "command", "c", "", "Command which you want to run")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
+	flags.BoolVar(&r.cleanup, "cleanup", false, "Celanup completed job after run the job")
 
 	return cmd
 }
@@ -33,10 +35,12 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 	if !verbose {
 		log.SetLevel(log.InfoLevel)
 	}
-	j, err := job.NewJob(config, r.templateFile, r.patch)
+	log.Infof("Using config file: %s", config)
+	j, err := job.NewJob(config, r.templateFile, r.command)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Infof("Using config file: %s", config)
-	log.Infof("currentJob: %+v", j.CurrentJob)
+	if err := j.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
