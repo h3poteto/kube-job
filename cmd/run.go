@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/h3poteto/kube-job/job"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -36,7 +38,7 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.InfoLevel)
 	}
 	log.Infof("Using config file: %s", config)
-	j, err := job.NewJob(config, r.templateFile, r.command)
+	j, err := job.NewJob(config, r.templateFile, r.command, (time.Duration(r.timeout) * time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}
