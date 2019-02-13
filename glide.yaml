@@ -12,3 +12,7 @@ import:
 - package: github.com/spf13/viper
 - package: github.com/sirupsen/logrus
   version: ~1.3.0
+- package: k8s.io/api
+  subpackages:
+  - batch/v1
+- package: github.com/ghodss/yaml

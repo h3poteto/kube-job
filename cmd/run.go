@@ -1,13 +1,15 @@
 package cmd
 
 import (
+	"github.com/h3poteto/kube-job/job"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 type runJob struct {
-	command string
-	timeout int
+	patch        string
+	templateFile string
+	timeout      int
 }
 
 func runJobCmd() *cobra.Command {
@@ -19,7 +21,8 @@ func runJobCmd() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.StringVar(&r.command, "command", "", "Command which you want to run")
+	flags.StringVarP(&r.templateFile, "template-file", "f", "", "Job template file")
+	flags.StringVarP(&r.patch, "patch", "p", "", "JSON which you want to override the template file")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
 
 	return cmd
@@ -30,5 +33,10 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 	if !verbose {
 		log.SetLevel(log.InfoLevel)
 	}
+	j, err := job.NewJob(config, r.templateFile, r.patch)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Infof("Using config file: %s", config)
+	log.Infof("currentJob: %+v", j.CurrentJob)
 }
