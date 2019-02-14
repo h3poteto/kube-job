@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -47,6 +48,7 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 	if err != nil {
 		return nil, err
 	}
+	currentJob.SetName(generateRandomName(currentJob.Name))
 
 	p := shellwords.NewParser()
 	commands, err := p.Parse(command)
@@ -61,6 +63,18 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 		container,
 		timeout,
 	}, nil
+}
+
+func generateRandomName(name string) string {
+	return fmt.Sprintf("%s-%s", name, secureRandomStr(16))
+}
+
+func secureRandomStr(b int) string {
+	k := make([]byte, b)
+	if _, err := rand.Read(k); err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%x", k)
 }
 
 func (j *Job) RunJob() (*v1.Job, error) {
