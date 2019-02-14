@@ -20,15 +20,19 @@ type Job struct {
 	client     *kubernetes.Clientset
 	CurrentJob *v1.Job
 	Commands   []string
+	Container  string
 	Timeout    time.Duration
 }
 
-func NewJob(configFile string, currentFile string, command string, timeout time.Duration) (*Job, error) {
+func NewJob(configFile, currentFile, command, container string, timeout time.Duration) (*Job, error) {
 	if len(configFile) == 0 {
 		return nil, errors.New("Config file is required")
 	}
 	if len(currentFile) == 0 {
 		return nil, errors.New("Template file is required")
+	}
+	if len(container) == 0 {
+		return nil, errors.New("Container is required")
 	}
 	client, err := newClient(configFile)
 	if err != nil {
@@ -54,19 +58,33 @@ func NewJob(configFile string, currentFile string, command string, timeout time.
 		client,
 		&currentJob,
 		commands,
+		container,
 		timeout,
 	}, nil
 }
 
 func (j *Job) RunJob() (*v1.Job, error) {
 	currentJob := j.CurrentJob.DeepCopy()
-	currentJob.Spec.Template.Spec.Containers[0].Command = j.Commands
+	index, err := findContainerIndex(currentJob, j.Container)
+	if err != nil {
+		return nil, err
+	}
+	currentJob.Spec.Template.Spec.Containers[index].Command = j.Commands
 
 	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(currentJob)
 	if err != nil {
 		return nil, err
 	}
 	return resultJob, nil
+}
+
+func findContainerIndex(job *v1.Job, containerName string) (int, error) {
+	for index, container := range job.Spec.Template.Spec.Containers {
+		if container.Name == containerName {
+			return index, nil
+		}
+	}
+	return 0, errors.New("Container does not exit in the template")
 }
 
 func (j *Job) WaitJob(ctx context.Context, job *v1.Job) error {
