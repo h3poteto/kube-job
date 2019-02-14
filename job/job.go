@@ -105,7 +105,7 @@ func (j *Job) WaitJob(ctx context.Context, job *v1.Job) error {
 			return err
 		}
 	case <-done:
-		log.Info("Job is success")
+		log.Info("Job is succeeded")
 	case <-ctx.Done():
 		return errors.New("process timeout")
 	}
@@ -134,8 +134,14 @@ retry:
 func checkJobConditions(conditions []v1.JobCondition) error {
 	for _, condition := range conditions {
 		if condition.Type == v1.JobFailed {
-			return fmt.Errorf("Job failed: %s", condition.Reason)
+			return fmt.Errorf("Job is failed: %s", condition.Reason)
 		}
 	}
 	return nil
+}
+
+func (j *Job) Cleanup() error {
+	log.Info("Removing the job...")
+	options := metav1.DeleteOptions{}
+	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(j.CurrentJob.Name, &options)
 }

@@ -29,7 +29,7 @@ func runJobCmd() *cobra.Command {
 	flags.StringVar(&r.command, "command", "", "Command which you want to run")
 	flags.StringVar(&r.container, "container", "", "Container name which you want watch the log")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
-	flags.BoolVar(&r.cleanup, "cleanup", false, "Celanup completed job after run the job")
+	flags.BoolVar(&r.cleanup, "cleanup", true, "Cleanup completed job after run the job if the job is succeeded")
 
 	return cmd
 }
@@ -46,5 +46,10 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 	}
 	if err := j.Run(); err != nil {
 		log.Fatal(err)
+	}
+	if r.cleanup {
+		if err := j.Cleanup(); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
