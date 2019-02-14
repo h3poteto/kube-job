@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -18,6 +19,16 @@ func (j *Job) Run() error {
 	}
 	defer cancel()
 
+	watcher := NewWatcher(j.client, j.Container)
+	go func() {
+		err := watcher.Watch(running, ctx)
+		if err != nil {
+			log.Error(err)
+		}
+	}()
+
 	err = j.WaitJob(ctx, running)
+	time.Sleep(10 * time.Second)
+	cancel()
 	return err
 }
