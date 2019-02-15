@@ -16,11 +16,15 @@ import (
 	restclient "k8s.io/client-go/rest"
 )
 
+// Watcher has client of kubernetes and target container information.
 type Watcher struct {
-	client    *kubernetes.Clientset
+	client *kubernetes.Clientset
+
+	// Target container name.
 	Container string
 }
 
+// NewWatcher returns a new Watcher struct.
 func NewWatcher(client *kubernetes.Clientset, container string) *Watcher {
 	return &Watcher{
 		client,
@@ -67,6 +71,9 @@ func (w *Watcher) Watch(job *v1.Job, ctx context.Context) error {
 	return nil
 }
 
+// WaitToStartPods wait until starting the pods.
+// Because the job does not start immediately after call kubernetes API.
+// So we have to wait to start the pods, before watch logs.
 func (w *Watcher) WaitToStartPods(job *v1.Job) (*corev1.PodList, error) {
 retry:
 	for {
@@ -86,6 +93,7 @@ retry:
 	}
 }
 
+// hasPendingContainer check the pods whether it have pending container.
 func hasPendingContainer(pods []corev1.Pod) bool {
 	for _, pod := range pods {
 		if pod.Status.Phase == corev1.PodPending {
@@ -95,6 +103,7 @@ func hasPendingContainer(pods []corev1.Pod) bool {
 	return false
 }
 
+// parseLabels parses label sets, and build query string.
 func parseLabels(labels map[string]string) string {
 	query := []string{}
 	for k, v := range labels {
@@ -103,6 +112,7 @@ func parseLabels(labels map[string]string) string {
 	return strings.Join(query, ",")
 }
 
+// readStreamLog reads rest request, and output the log to stdout with stream.
 func readStreamLog(request *restclient.Request, pod corev1.Pod) error {
 	readCloser, err := request.Stream()
 	if err != nil {
