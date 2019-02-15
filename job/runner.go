@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Run a command on kubernetes cluster, and watch the log.
 func (j *Job) Run() error {
 	running, err := j.RunJob()
 	if err != nil {
