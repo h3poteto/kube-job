@@ -9,7 +9,7 @@ import (
 )
 
 type runJob struct {
-	command      string
+	args         string
 	templateFile string
 	container    string
 	timeout      int
@@ -26,7 +26,7 @@ func runJobCmd() *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.StringVarP(&r.templateFile, "template-file", "f", "", "Job template file")
-	flags.StringVar(&r.command, "command", "", "Command which you want to run")
+	flags.StringVar(&r.args, "args", "", "Command which you want to run")
 	flags.StringVar(&r.container, "container", "", "Container name which you want watch the log")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
 	flags.BoolVar(&r.cleanup, "cleanup", true, "Cleanup completed job after run the job if the job is succeeded")
@@ -40,7 +40,7 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.WarnLevel)
 	}
 	log.Infof("Using config file: %s", config)
-	j, err := job.NewJob(config, r.templateFile, r.command, r.container, (time.Duration(r.timeout) * time.Second))
+	j, err := job.NewJob(config, r.templateFile, r.args, r.container, (time.Duration(r.timeout) * time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}
