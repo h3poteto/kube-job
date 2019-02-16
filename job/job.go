@@ -24,7 +24,7 @@ type Job struct {
 	// Batch v1 job struct.
 	CurrentJob *v1.Job
 	// Command which override the current job struct.
-	Commands []string
+	Args []string
 	// Target container name.
 	Container string
 	// If you set 0, timeout is ignored.
@@ -59,7 +59,7 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 	currentJob.SetName(generateRandomName(currentJob.Name))
 
 	p := shellwords.NewParser()
-	commands, err := p.Parse(command)
+	args, err := p.Parse(command)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 	return &Job{
 		client,
 		&currentJob,
-		commands,
+		args,
 		container,
 		timeout,
 	}, nil
@@ -93,7 +93,7 @@ func (j *Job) RunJob() (*v1.Job, error) {
 	if err != nil {
 		return nil, err
 	}
-	currentJob.Spec.Template.Spec.Containers[index].Command = j.Commands
+	currentJob.Spec.Template.Spec.Containers[index].Args = j.Args
 
 	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(currentJob)
 	if err != nil {
