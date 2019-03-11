@@ -2,9 +2,15 @@ package job
 
 import (
 	"context"
+	"crypto/md5"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	shellwords "github.com/mattn/go-shellwords"
@@ -47,7 +53,11 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 	if err != nil {
 		return nil, err
 	}
-	bytes, err := ioutil.ReadFile(currentFile)
+	downloaded, err := downloadFile(currentFile)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := ioutil.ReadFile(downloaded)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +81,46 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 		container,
 		timeout,
 	}, nil
+}
+
+func downloadFile(rawurl string) (string, error) {
+	if !strings.HasPrefix(rawurl, "https://") {
+		return rawurl, nil
+	}
+
+	req, err := http.NewRequest("GET", rawurl, nil)
+	if err != nil {
+		return rawurl, err
+	}
+	token := os.Getenv("GITHUB_TOKEN")
+	if len(token) > 0 {
+		req.Header.Set("Authorization", "token "+token)
+		req.Header.Set("Accept", "application/vnd.github.v3.raw")
+	}
+	client := new(http.Client)
+	resp, err := client.Do(req)
+	if err != nil {
+		return rawurl, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return rawurl, fmt.Errorf("Could not read template file from %s", rawurl)
+	}
+
+	// Get random string from url.
+	hasher := md5.New()
+	hasher.Write([]byte(rawurl))
+	downloaded := "/tmp/" + hex.EncodeToString(hasher.Sum(nil)) + ".yml"
+	out, err := os.Create(downloaded)
+	if err != nil {
+		return rawurl, err
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return downloaded, err
 }
 
 func generateRandomName(name string) string {
