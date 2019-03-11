@@ -106,6 +106,21 @@ $ ./kube-job run --config=$HOME/.kube/config --template-file=./job.yaml --args="
 echo
 ```
 
+### Specify an URL as a template file
+
+You can specify an URL as a template file, like this:
+
+```
+$ ./kube-job run --template-file=https://github.com/h3poteto/k8s-services/blob/master/external-prd/fascia/job.yml --args="echo fuga" --container="go"
+```
+
+If your template file is located in private repository, please export personal access token of GitHub. And please use an API URL endpoint.
+
+```
+$ export GITHUB_TOKEN=hogehogefugafuga
+$ ./kube-job run --template-file=https://api.github.com/repos/h3poteto/k8s-services/contents/external-prd/fascia/job.yml --args="echo fuga" --container="go"
+```
+
 ## Role
 
 The user to be executed needs the following role.
