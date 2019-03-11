@@ -1,10 +1,6 @@
-hash: 003541cce978e895cf4dca06c45dc730df7891086cfb58d90df233d3c46fae3e
-updated: 2019-02-13T15:20:10.806252282+09:00
+hash: 5dcee52a8cfdea6a0b681ef02e0c6a489e4389b20636736de128761cca7e2f61
+updated: 2019-03-11T11:22:36.75217+09:00
 imports:
-- name: github.com/davecgh/go-spew
-  version: 782f4967f2dc4564575ca782fe2d04090b5faca8
-  subpackages:
-  - spew
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
 - name: github.com/ghodss/yaml
@@ -135,6 +131,8 @@ imports:
   - urlfetch
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+- name: gopkg.in/yaml.v2
+  version: 51d6538a90f86fe93ac480b35f37b2be17fef232
 - name: k8s.io/api
   version: 89a74a8d264df0e993299876a8cde88379b940ee
   subpackages:
@@ -198,7 +196,6 @@ imports:
   - pkg/util/framer
   - pkg/util/intstr
   - pkg/util/json
-  - pkg/util/mergepatch
   - pkg/util/naming
   - pkg/util/net
   - pkg/util/runtime
@@ -209,7 +206,6 @@ imports:
   - pkg/util/yaml
   - pkg/version
   - pkg/watch
-  - third_party/forked/golang/json
   - third_party/forked/golang/reflect
 - name: k8s.io/client-go
   version: e64494209f554a6723674bd494d69445fb76a1d4
@@ -271,10 +267,6 @@ imports:
   - util/integer
 - name: k8s.io/klog
   version: 8139d8cb77af419532b33dfa7dd09fbc5f1d344f
-- name: k8s.io/kube-openapi
-  version: c59034cc13d587f5ef4e85ca0ade0c1866ae8e1d
-  subpackages:
-  - pkg/util/proto
 - name: sigs.k8s.io/yaml
   version: fd68e9863619f6ec2fdd8625fe1f02e7c877e480
 testImports: []
