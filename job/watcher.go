@@ -54,11 +54,10 @@ retry:
 		currentPodList = newPodList
 		continue retry
 	}
-	return nil
 }
 
 // WatchPods gets wait to start pod and tail the logs.
-func (w *Watcher) WatchPods(pods []corev1.Pod, ctx context.Context) error {
+func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(pods))
 
@@ -110,7 +109,7 @@ func (w *Watcher) FindPods(job *v1.Job) ([]corev1.Pod, error) {
 	return podList.Items, err
 }
 
-// WaitToStartPods wait until starting the pod.
+// WaitToStartPod wait until starting the pod.
 // Because the job does not start immediately after call kubernetes API.
 // So we have to wait to start the pod, before watch logs.
 func (w *Watcher) WaitToStartPod(pod corev1.Pod) (corev1.Pod, error) {
