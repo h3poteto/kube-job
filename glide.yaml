@@ -18,3 +18,5 @@ import:
   - batch/v1
 - package: github.com/ghodss/yaml
 - package: github.com/mattn/go-shellwords
+- package: gopkg.in/yaml.v2
+  version: ~2.2.2
