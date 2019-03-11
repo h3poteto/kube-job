@@ -48,7 +48,7 @@ retry:
 		}
 
 		incrementalPodList := diffPods(currentPodList, newPodList)
-		go w.WatchPods(incrementalPodList, ctx)
+		go w.WatchPods(ctx, incrementalPodList)
 
 		time.Sleep(1 * time.Second)
 		currentPodList = newPodList
