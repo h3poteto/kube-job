@@ -36,6 +36,7 @@ func runJobCmd() *cobra.Command {
 
 func (r *runJob) run(cmd *cobra.Command, args []string) {
 	config, verbose := generalConfig()
+	log.SetLevel(log.DebugLevel)
 	if !verbose {
 		log.SetLevel(log.WarnLevel)
 	}
