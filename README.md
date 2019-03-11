@@ -1,4 +1,5 @@
-[![GitHub release](http://img.shields.io/github/release/h3poteto/kube-job.svg?style=flat-square)](https://github.com/h3poteto/kube-job/releases)
+[![Build Status](https://travis-ci.com/h3poteto/kube-job.svg?branch=master)](https://travis-ci.com/h3poteto/kube-job)
+[![GitHub release](http://img.shields.io/github/release/h3poteto/kube-job.svg?style=flat)](https://github.com/h3poteto/kube-job/releases)
 [![GoDoc](https://godoc.org/github.com/h3poteto/kube-job/job?status.svg)](https://godoc.org/github.com/h3poteto/kube-job/job)
 
 
