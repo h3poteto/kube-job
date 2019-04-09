@@ -223,7 +223,23 @@ func checkJobConditions(conditions []v1.JobCondition) error {
 
 // Cleanup removes the job from the kubernetes cluster.
 func (j *Job) Cleanup() error {
+	err := j.removePods()
+	if err != nil {
+		return err
+	}
 	log.Info("Removing the job...")
 	options := metav1.DeleteOptions{}
 	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(j.CurrentJob.Name, &options)
+}
+
+func (j *Job) removePods() error {
+	log.Info("Removing related pods...")
+	labels := parseLabels(j.CurrentJob.Spec.Template.Labels)
+	listOptions := metav1.ListOptions{
+		LabelSelector: labels,
+	}
+	options := &metav1.DeleteOptions{
+		GracePeriodSeconds: nil, // Use default grace period seconds.
+	}
+	return j.client.CoreV1().Pods(j.CurrentJob.Namespace).DeleteCollection(options, listOptions)
 }
