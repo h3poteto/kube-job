@@ -18,7 +18,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
-	"k8s.io/api/batch/v1"
+	v1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -227,14 +227,15 @@ func (j *Job) Cleanup() error {
 	if err != nil {
 		return err
 	}
-	log.Info("Removing the job...")
+	log.Infof("Removing the job: %s", j.CurrentJob.Name)
 	options := metav1.DeleteOptions{}
 	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(j.CurrentJob.Name, &options)
 }
 
 func (j *Job) removePods() error {
-	log.Info("Removing related pods...")
-	labels := parseLabels(j.CurrentJob.Spec.Template.Labels)
+	// Use job-name to find pods which are related the job.
+	labels := "job-name=" + j.CurrentJob.Name
+	log.Infof("Remove related pods which labels is: %s", labels)
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels,
 	}
