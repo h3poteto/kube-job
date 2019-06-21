@@ -53,6 +53,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type CleanupType int
+
+const (
+	All CleanupType = iota
+	Succeeded
+	Failed
+)
+
+func (c CleanupType) String() string {
+	return [...]string{"all", "succeeded", "failed"}[c]
+}
+
 // Run a command on kubernetes cluster, and watch the log.
 func (j *Job) Run() error {
 	running, err := j.RunJob()
@@ -78,4 +90,15 @@ func (j *Job) Run() error {
 	time.Sleep(10 * time.Second)
 	cancel()
 	return err
+}
+
+// Run a command and clean up jobs and pods.
+func (j *Job) RunAndCleanup(cleanupType string) error {
+	err := j.Run()
+	if cleanupType == All.String() || (cleanupType == Succeeded.String() && err == nil) || (cleanupType == Failed.String() && err != nil) {
+		if err := j.Cleanup(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
