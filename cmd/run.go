@@ -42,7 +42,7 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.WarnLevel)
 	}
 	if r.cleanup != job.All.String() && r.cleanup != job.Succeeded.String() && r.cleanup != job.Failed.String() {
-		err := errors.New("Please set 'all', 'succeeded' or 'failed' as --cleanup.")
+		err := errors.New("please set 'all', 'succeeded' or 'failed' as --cleanup")
 		log.Fatal(err)
 	}
 

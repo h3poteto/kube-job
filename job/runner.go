@@ -53,11 +53,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CleanupType for enum.
 type CleanupType int
 
 const (
+	// All is a clean up type. Remove the job and pods whether the job is succeeded or failed.
 	All CleanupType = iota
+	// Succeeded is a clean up type. Remove the job and pods when the job is succeeded.
 	Succeeded
+	// Failed is a cleanup type. Remove the job and pods when the job is failed.
 	Failed
 )
 
@@ -92,7 +96,7 @@ func (j *Job) Run() error {
 	return err
 }
 
-// Run a command and clean up jobs and pods.
+// RunAndCleanup executes a command and clean up the job and pods.
 func (j *Job) RunAndCleanup(cleanupType string) error {
 	err := j.Run()
 	if cleanupType == All.String() || (cleanupType == Succeeded.String() && err == nil) || (cleanupType == Failed.String() && err != nil) {
