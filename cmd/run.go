@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/h3poteto/kube-job/job"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ type runJob struct {
 	templateFile string
 	container    string
 	timeout      int
-	cleanup      bool
+	cleanup      string
 }
 
 func runJobCmd() *cobra.Command {
@@ -29,7 +30,7 @@ func runJobCmd() *cobra.Command {
 	flags.StringVar(&r.args, "args", "", "Command which you want to run")
 	flags.StringVar(&r.container, "container", "", "Container name which you want watch the log")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
-	flags.BoolVar(&r.cleanup, "cleanup", true, "Cleanup completed job after run the job if the job is succeeded")
+	flags.StringVar(&r.cleanup, "cleanup", "succeeded", "Cleanup completed job after run the job. You can specify 'all', 'succeeded' or 'failed'.")
 
 	return cmd
 }
@@ -40,17 +41,19 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 	if !verbose {
 		log.SetLevel(log.WarnLevel)
 	}
+	if r.cleanup != job.All.String() && r.cleanup != job.Succeeded.String() && r.cleanup != job.Failed.String() {
+		err := errors.New("please set 'all', 'succeeded' or 'failed' as --cleanup")
+		log.Fatal(err)
+	}
+
 	log.Infof("Using config file: %s", config)
 	j, err := job.NewJob(config, r.templateFile, r.args, r.container, (time.Duration(r.timeout) * time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := j.Run(); err != nil {
+
+	if err := j.RunAndCleanup(r.cleanup); err != nil {
 		log.Fatal(err)
 	}
-	if r.cleanup {
-		if err := j.Cleanup(); err != nil {
-			log.Fatal(err)
-		}
-	}
+
 }

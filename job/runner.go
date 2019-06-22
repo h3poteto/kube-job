@@ -53,6 +53,22 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CleanupType for enum.
+type CleanupType int
+
+const (
+	// All is a clean up type. Remove the job and pods whether the job is succeeded or failed.
+	All CleanupType = iota
+	// Succeeded is a clean up type. Remove the job and pods when the job is succeeded.
+	Succeeded
+	// Failed is a cleanup type. Remove the job and pods when the job is failed.
+	Failed
+)
+
+func (c CleanupType) String() string {
+	return [...]string{"all", "succeeded", "failed"}[c]
+}
+
 // Run a command on kubernetes cluster, and watch the log.
 func (j *Job) Run() error {
 	running, err := j.RunJob()
@@ -78,4 +94,15 @@ func (j *Job) Run() error {
 	time.Sleep(10 * time.Second)
 	cancel()
 	return err
+}
+
+// RunAndCleanup executes a command and clean up the job and pods.
+func (j *Job) RunAndCleanup(cleanupType string) error {
+	err := j.Run()
+	if cleanupType == All.String() || (cleanupType == Succeeded.String() && err == nil) || (cleanupType == Failed.String() && err != nil) {
+		if err := j.Cleanup(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
