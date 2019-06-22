@@ -19,14 +19,14 @@ import (
 
 // Watcher has client of kubernetes and target container information.
 type Watcher struct {
-	client *kubernetes.Clientset
+	client kubernetes.Interface
 
 	// Target container name.
 	Container string
 }
 
 // NewWatcher returns a new Watcher struct.
-func NewWatcher(client *kubernetes.Clientset, container string) *Watcher {
+func NewWatcher(client kubernetes.Interface, container string) *Watcher {
 	return &Watcher{
 		client,
 		container,
