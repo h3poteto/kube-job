@@ -25,7 +25,7 @@ import (
 
 // Job has client of kubernetes, current job, command, timeout, and target container information.
 type Job struct {
-	client *kubernetes.Clientset
+	client kubernetes.Interface
 
 	// Batch v1 job struct.
 	CurrentJob *v1.Job

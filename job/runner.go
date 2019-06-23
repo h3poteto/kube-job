@@ -99,10 +99,14 @@ func (j *Job) Run() error {
 // RunAndCleanup executes a command and clean up the job and pods.
 func (j *Job) RunAndCleanup(cleanupType string) error {
 	err := j.Run()
-	if cleanupType == All.String() || (cleanupType == Succeeded.String() && err == nil) || (cleanupType == Failed.String() && err != nil) {
+	if shouldCleanup(cleanupType, err) {
 		if err := j.Cleanup(); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func shouldCleanup(cleanupType string, err error) bool {
+	return cleanupType == All.String() || (cleanupType == Succeeded.String() && err == nil) || (cleanupType == Failed.String() && err != nil)
 }
