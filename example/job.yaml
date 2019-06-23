@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: example-job
+  labels:
+    app: example-job
+spec:
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:latest
+        imagePullPolicy: Always
+        args: ["env"]
+        env:
+          - name: HOGE
+            value: fuga
+      restartPolicy: Never
+  backoffLimit: 2

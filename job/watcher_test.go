@@ -12,7 +12,7 @@ func TestParseLabels(t *testing.T) {
 		"version": "1",
 	}
 	parsed := parseLabels(labels)
-	if parsed != "app=job,version=1" {
+	if parsed != "app=job,version=1" && parsed != "version=1,app=job" {
 		t.Errorf("Parsed label does not match: %s", parsed)
 	}
 }
