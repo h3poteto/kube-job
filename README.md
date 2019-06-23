@@ -15,8 +15,8 @@ This is a command line tool, but you can use job as a package. So when you write
 
 ## Install
 ```
-$ wget https://github.com/h3poteto/kube-job/releases/download/v0.1.1/kube-job_0.1.1_linux_amd64.zip
-$ unzip kube-job_0.1.1_linux_amd64.zip
+$ wget https://github.com/h3poteto/kube-job/releases/download/v0.2.0/kube-job_0.2.0_linux_amd64.zip
+$ unzip kube-job_0.2.0_linux_amd64.zip
 $ ./kube-job help
 Run one off job on kubernetes
 
