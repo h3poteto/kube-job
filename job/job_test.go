@@ -8,6 +8,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/batch/v1"
+	v1core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	batchv1 "k8s.io/client-go/kubernetes/typed/batch/v1"
@@ -38,6 +39,7 @@ type mockedCoreV1 struct {
 type mockedPod struct {
 	corev1.PodInterface
 	jobName string
+	pod     *v1core.Pod
 }
 
 func (m mockedJob) Create(*v1.Job) (*v1.Job, error) {
