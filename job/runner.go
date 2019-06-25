@@ -100,11 +100,11 @@ func (j *Job) Run() error {
 func (j *Job) RunAndCleanup(cleanupType string) error {
 	err := j.Run()
 	if shouldCleanup(cleanupType, err) {
-		if err := j.Cleanup(); err != nil {
-			return err
+		if e := j.Cleanup(); e != nil {
+			return e
 		}
 	}
-	return nil
+	return err
 }
 
 func shouldCleanup(cleanupType string, err error) bool {
