@@ -70,6 +70,10 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 
 	p := shellwords.NewParser()
 	args, err := p.Parse(command)
+	log.Info("Received args:")
+	for _, arg := range args {
+		log.Info(arg)
+	}
 	if err != nil {
 		return nil, err
 	}
