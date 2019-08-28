@@ -66,23 +66,27 @@ Next, please write job template file. It can be the same as used for kubectl, as
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: test-job
-  namespace: public
+  name: example-job
+  namespace: default
   labels:
-    app: test-job
+    app: example-job
 spec:
   template:
     metadata:
       labels:
-        app: test-job
+        app: example
     spec:
       containers:
-      - name: echo
+      - name: alpine
         image: alpine:latest
         imagePullPolicy: Always
-        args: ["echo", "hoge"]
+        args: ["env"]
+        env:
+          - name: HOGE
+            value: fuga
       restartPolicy: Never
   backoffLimit: 2
+
 ```
 
 `metadata.name` and `spec.template.spec.containers[0].args` are overrided when you use `kube-job`.
@@ -103,8 +107,8 @@ Please provide Kuberenetes config file, job template yaml file, and command.
 The container parameter receives which container do you want to execute the command.
 
 ```
-$ ./kube-job run --config=$HOME/.kube/config --template-file=./job.yaml --args="echo fuga" --container="echo"
-echo
+$ ./kube-job run --config=$HOME/.kube/config --template-file=./job.yaml --args="echo fuga" --container="alpine"
+fuga
 ```
 
 ### Specify an URL as a template file
@@ -112,14 +116,14 @@ echo
 You can specify an URL as a template file, like this:
 
 ```
-$ ./kube-job run --template-file=https://github.com/h3poteto/k8s-services/blob/master/external-prd/fascia/job.yml --args="echo fuga" --container="go"
+$ ./kube-job run --template-file=https://github.com/h3poteto/kube-job/example/job.yaml --args="echo fuga" --container="alpine"
 ```
 
 If your template file is located in private repository, please export personal access token of GitHub. And please use an API URL endpoint.
 
 ```
 $ export GITHUB_TOKEN=hogehogefugafuga
-$ ./kube-job run --template-file=https://api.github.com/repos/h3poteto/k8s-services/contents/external-prd/fascia/job.yml --args="echo fuga" --container="go"
+$ ./kube-job run --template-file=https://api.github.com/repos/h3poteto/kube-job/contents/example/job.yaml --args="echo fuga" --container="alpine"
 ```
 
 ## Role

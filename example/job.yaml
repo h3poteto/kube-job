@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: example-job
+  namespace: default
   labels:
     app: example-job
 spec:
