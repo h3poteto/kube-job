@@ -1,4 +1,4 @@
-.PHONY: all glide build
+.PHONY: all mod build
 
 OUTPUT = kube-job
 BUILD_CMD = go build -a -tags netgo -installsuffix netgo --ldflags '-extldflags "-static"'
@@ -6,17 +6,17 @@ VERSION = v1.0.0
 
 all: mac linux windows
 
-glide: glide.lock
-	glide install
+mod: go.mod
+	go mod download
 
-mac: glide
+mac: mod
 	GOOS=darwin GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT)
 	zip packages/$(OUTPUT)_${VERSION}_darwin_amd64.zip $(OUTPUT)
 
-linux: glide
+linux: mod
 	GOOS=linux GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT)
 	zip packages/$(OUTPUT)_${VERSION}_linux_amd64.zip $(OUTPUT)
 
-windows: glide
+windows: mod
 	GOOS=windows GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT).exe
 	zip packages/$(OUTPUT)_${VERSION}_windows_amd64.zip $(OUTPUT).exe
