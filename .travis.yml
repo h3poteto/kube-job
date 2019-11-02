@@ -1,18 +1,14 @@
 language: go
 
-go:
-  - 1.10.x
-  - 1.11.x
-  - 1.12.x
+env:
+  - GO111MODULE=on
 
-before_install:
-  - wget "https://github.com/Masterminds/glide/releases/download/v0.13.2/glide-v0.13.2-linux-amd64.tar.gz"
-  - mkdir -p $HOME/bin
-  - tar -vxz -C $HOME/bin --strip=1 -f glide-v0.13.2-linux-amd64.tar.gz
-  - export PATH="$HOME/bin:$PATH"
+go:
+  - 1.12.x
+  - 1.13.x
 
 install:
-  - glide install
+  - go mod download
 
 script:
   - cd job && go test
