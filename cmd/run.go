@@ -30,7 +30,7 @@ func runJobCmd() *cobra.Command {
 	flags.StringVar(&r.args, "args", "", "Command which you want to run")
 	flags.StringVar(&r.container, "container", "", "Container name which you want watch the log")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
-	flags.StringVar(&r.cleanup, "cleanup", "succeeded", "Cleanup completed job after run the job. You can specify 'all', 'succeeded' or 'failed'.")
+	flags.StringVar(&r.cleanup, "cleanup", "all", "Cleanup completed job after run the job. You can specify 'all', 'succeeded' or 'failed'.")
 
 	return cmd
 }
