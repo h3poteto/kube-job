@@ -147,7 +147,9 @@ func (j *Job) RunJob() (*v1.Job, error) {
 	if err != nil {
 		return nil, err
 	}
-	currentJob.Spec.Template.Spec.Containers[index].Args = j.Args
+	if len(j.Args) > 0 {
+		currentJob.Spec.Template.Spec.Containers[index].Args = j.Args
+	}
 
 	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(currentJob)
 	if err != nil {
