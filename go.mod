@@ -12,7 +12,7 @@ require (
 	github.com/mattn/go-shellwords v1.0.4-0.20181023065652-3c0603ff9671
 	github.com/pelletier/go-toml v1.2.1-0.20181124002727-27c6b39a135b // indirect
 	github.com/pkg/errors v0.8.2-0.20190109061628-ffb6e22f0193
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/afero v1.2.1 // indirect
 	github.com/spf13/cobra v0.0.4-0.20190109003409-7547e83b2d85
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
