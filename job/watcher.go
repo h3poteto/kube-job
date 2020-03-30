@@ -42,7 +42,7 @@ func (w *Watcher) Watch(job *v1.Job, ctx context.Context) error {
 	currentPodList := []corev1.Pod{}
 retry:
 	for {
-		newPodList, err := w.FindPods(job)
+		newPodList, err := w.FindPods(ctx, job)
 		if err != nil {
 			return err
 		}
@@ -65,7 +65,7 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			pod, err := w.WaitToStartPod(pod)
+			pod, err := w.WaitToStartPod(ctx, pod)
 			if err != nil {
 				errCh <- err
 				return
@@ -76,11 +76,11 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 				Follow:    true,
 			}
 			// Ref: https://stackoverflow.com/questions/32983228/kubernetes-go-client-api-for-log-of-a-particular-pod
-			request := w.client.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &logOptions).Context(ctx).
+			request := w.client.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &logOptions).
 				Param("follow", strconv.FormatBool(true)).
 				Param("container", w.Container).
 				Param("timestamps", strconv.FormatBool(false))
-			err = readStreamLog(request, pod)
+			err = readStreamLog(ctx, request, pod)
 			errCh <- err
 		}()
 	}
@@ -97,12 +97,12 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 }
 
 // FindPods finds pods in
-func (w *Watcher) FindPods(job *v1.Job) ([]corev1.Pod, error) {
+func (w *Watcher) FindPods(ctx context.Context, job *v1.Job) ([]corev1.Pod, error) {
 	labels := parseLabels(job.Spec.Template.Labels)
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels,
 	}
-	podList, err := w.client.CoreV1().Pods(job.Namespace).List(listOptions)
+	podList, err := w.client.CoreV1().Pods(job.Namespace).List(ctx, listOptions)
 	if err != nil {
 		return []corev1.Pod{}, err
 	}
@@ -112,10 +112,10 @@ func (w *Watcher) FindPods(job *v1.Job) ([]corev1.Pod, error) {
 // WaitToStartPod wait until starting the pod.
 // Because the job does not start immediately after call kubernetes API.
 // So we have to wait to start the pod, before watch logs.
-func (w *Watcher) WaitToStartPod(pod corev1.Pod) (corev1.Pod, error) {
+func (w *Watcher) WaitToStartPod(ctx context.Context, pod corev1.Pod) (corev1.Pod, error) {
 retry:
 	for {
-		targetPod, err := w.client.CoreV1().Pods(pod.Namespace).Get(pod.Name, metav1.GetOptions{})
+		targetPod, err := w.client.CoreV1().Pods(pod.Namespace).Get(ctx, pod.Name, metav1.GetOptions{})
 		if err != nil {
 			return pod, err
 		}
@@ -146,8 +146,8 @@ func parseLabels(labels map[string]string) string {
 }
 
 // readStreamLog reads rest request, and output the log to stdout with stream.
-func readStreamLog(request *restclient.Request, pod corev1.Pod) error {
-	readCloser, err := request.Stream()
+func readStreamLog(ctx context.Context, request *restclient.Request, pod corev1.Pod) error {
+	readCloser, err := request.Stream(ctx)
 	if err != nil {
 		return err
 	}
