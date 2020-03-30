@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"io/ioutil"
 	"testing"
 	"time"
@@ -42,19 +43,19 @@ type mockedPod struct {
 	pod     *v1core.Pod
 }
 
-func (m mockedJob) Create(*v1.Job) (*v1.Job, error) {
+func (m mockedJob) Create(context.Context, *v1.Job, metav1.CreateOptions) (*v1.Job, error) {
 	return m.job, nil
 }
 
-func (m mockedJob) Get(string, metav1.GetOptions) (*v1.Job, error) {
+func (m mockedJob) Get(context.Context, string, metav1.GetOptions) (*v1.Job, error) {
 	return m.job, nil
 }
 
-func (m mockedJob) Delete(string, *metav1.DeleteOptions) error {
+func (m mockedJob) Delete(context.Context, string, metav1.DeleteOptions) error {
 	return nil
 }
 
-func (m mockedPod) DeleteCollection(deleteOptions *metav1.DeleteOptions, options metav1.ListOptions) error {
+func (m mockedPod) DeleteCollection(ctx context.Context, deleteOptions metav1.DeleteOptions, options metav1.ListOptions) error {
 	if options.LabelSelector != "job-name="+m.jobName {
 		return errors.New("label does not match")
 	}
@@ -163,7 +164,8 @@ func TestWaitJobComplete(t *testing.T) {
 			mockedBatch: batchV1Mock,
 		},
 	}
-	err = job.WaitJobComplete(currentJob)
+	ctx := context.Background()
+	err = job.WaitJobComplete(ctx, currentJob)
 	if err != nil {
 		t.Error(err)
 	}
@@ -203,7 +205,8 @@ func TestRemovePods(t *testing.T) {
 			mockedCore: coreV1Mock,
 		},
 	}
-	err = job.removePods()
+	ctx := context.Background()
+	err = job.removePods(ctx)
 	if err != nil {
 		t.Error(err)
 	}
