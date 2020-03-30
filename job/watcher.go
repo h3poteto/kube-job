@@ -63,9 +63,9 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 
 	for _, pod := range pods {
 		wg.Add(1)
-		go func() {
+		go func(p corev1.Pod) {
 			defer wg.Done()
-			pod, err := w.WaitToStartPod(ctx, pod)
+			startedPod, err := w.WaitToStartPod(ctx, p)
 			if err != nil {
 				errCh <- err
 				return
@@ -76,13 +76,13 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 				Follow:    true,
 			}
 			// Ref: https://stackoverflow.com/questions/32983228/kubernetes-go-client-api-for-log-of-a-particular-pod
-			request := w.client.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &logOptions).
+			request := w.client.CoreV1().Pods(startedPod.Namespace).GetLogs(startedPod.Name, &logOptions).
 				Param("follow", strconv.FormatBool(true)).
 				Param("container", w.Container).
 				Param("timestamps", strconv.FormatBool(false))
-			err = readStreamLog(ctx, request, pod)
+			err = readStreamLog(ctx, request, startedPod)
 			errCh <- err
-		}()
+		}(pod)
 	}
 
 	select {
