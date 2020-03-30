@@ -1,13 +1,14 @@
 package job
 
 import (
+	"context"
 	"testing"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (m mockedPod) Get(string, metav1.GetOptions) (*v1.Pod, error) {
+func (m mockedPod) Get(context.Context, string, metav1.GetOptions) (*v1.Pod, error) {
 	return m.pod, nil
 }
 
@@ -90,7 +91,8 @@ func TestWaitToStartPod(t *testing.T) {
 			mockedCore: coreV1Mock,
 		},
 	}
-	pod, err := watcher.WaitToStartPod(runningPod)
+	ctx := context.Background()
+	pod, err := watcher.WaitToStartPod(ctx, runningPod)
 	if err != nil {
 		t.Error(err)
 	}

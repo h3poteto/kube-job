@@ -142,6 +142,8 @@ func secureRandomStr(b int) string {
 
 // RunJob is run a kubernetes job, and returns the job information.
 func (j *Job) RunJob() (*v1.Job, error) {
+	ctx := context.Background()
+
 	currentJob := j.CurrentJob.DeepCopy()
 	index, err := findContainerIndex(currentJob, j.Container)
 	if err != nil {
@@ -151,7 +153,7 @@ func (j *Job) RunJob() (*v1.Job, error) {
 		currentJob.Spec.Template.Spec.Containers[index].Args = j.Args
 	}
 
-	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(currentJob)
+	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(ctx, currentJob, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +177,7 @@ func (j *Job) WaitJob(ctx context.Context, job *v1.Job) error {
 	errCh := make(chan error, 1)
 	done := make(chan struct{}, 1)
 	go func() {
-		err := j.WaitJobComplete(job)
+		err := j.WaitJobComplete(ctx, job)
 		if err != nil {
 			errCh <- err
 		}
@@ -198,11 +200,11 @@ func (j *Job) WaitJob(ctx context.Context, job *v1.Job) error {
 // WaitJobComplete waits the completion of the job.
 // If the job is failed, this function returns error.
 // If the job is succeeded, this function returns nil.
-func (j *Job) WaitJobComplete(job *v1.Job) error {
+func (j *Job) WaitJobComplete(ctx context.Context, job *v1.Job) error {
 retry:
 	for {
 		time.Sleep(3 * time.Second)
-		running, err := j.client.BatchV1().Jobs(job.Namespace).Get(job.Name, metav1.GetOptions{})
+		running, err := j.client.BatchV1().Jobs(job.Namespace).Get(ctx, job.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
@@ -229,24 +231,25 @@ func checkJobConditions(conditions []v1.JobCondition) error {
 
 // Cleanup removes the job from the kubernetes cluster.
 func (j *Job) Cleanup() error {
-	err := j.removePods()
+	ctx := context.Background()
+	err := j.removePods(ctx)
 	if err != nil {
 		return err
 	}
 	log.Infof("Removing the job: %s", j.CurrentJob.Name)
 	options := metav1.DeleteOptions{}
-	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(j.CurrentJob.Name, &options)
+	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(ctx, j.CurrentJob.Name, options)
 }
 
-func (j *Job) removePods() error {
+func (j *Job) removePods(ctx context.Context) error {
 	// Use job-name to find pods which are related the job.
 	labels := "job-name=" + j.CurrentJob.Name
 	log.Infof("Remove related pods which labels is: %s", labels)
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels,
 	}
-	options := &metav1.DeleteOptions{
+	options := metav1.DeleteOptions{
 		GracePeriodSeconds: nil, // Use default grace period seconds.
 	}
-	return j.client.CoreV1().Pods(j.CurrentJob.Namespace).DeleteCollection(options, listOptions)
+	return j.client.CoreV1().Pods(j.CurrentJob.Namespace).DeleteCollection(ctx, options, listOptions)
 }
