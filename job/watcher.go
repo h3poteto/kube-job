@@ -96,7 +96,7 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 	return nil
 }
 
-// FindPods finds pods in
+// FindPods finds pods in the job.
 func (w *Watcher) FindPods(ctx context.Context, job *v1.Job) ([]corev1.Pod, error) {
 	labels := parseLabels(job.Spec.Template.Labels)
 	listOptions := metav1.ListOptions{

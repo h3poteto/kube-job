@@ -15,6 +15,7 @@ type runJob struct {
 	container    string
 	timeout      int
 	cleanup      string
+	waitAll      bool
 }
 
 func runJobCmd() *cobra.Command {
@@ -31,6 +32,7 @@ func runJobCmd() *cobra.Command {
 	flags.StringVar(&r.container, "container", "", "Container name which you want watch the log")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
 	flags.StringVar(&r.cleanup, "cleanup", "all", "Cleanup completed job after run the job. You can specify 'all', 'succeeded' or 'failed'.")
+	flags.BoolVar(&r.waitAll, "wait-all", true, "Wait until all containers stop. If you set false, wait only specified container.")
 
 	return cmd
 }
@@ -52,7 +54,7 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err := j.RunAndCleanup(r.cleanup); err != nil {
+	if err := j.RunAndCleanup(r.cleanup, r.waitAll); err != nil {
 		log.Fatal(err)
 	}
 
