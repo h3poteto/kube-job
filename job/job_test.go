@@ -41,6 +41,7 @@ type mockedPod struct {
 	corev1.PodInterface
 	jobName string
 	pod     *v1core.Pod
+	podList *v1core.PodList
 }
 
 func (m mockedJob) Create(context.Context, *v1.Job, metav1.CreateOptions) (*v1.Job, error) {
@@ -60,6 +61,10 @@ func (m mockedPod) DeleteCollection(ctx context.Context, deleteOptions metav1.De
 		return errors.New("label does not match")
 	}
 	return nil
+}
+
+func (m mockedPod) List(ctx context.Context, options metav1.ListOptions) (*v1core.PodList, error) {
+	return m.podList, nil
 }
 
 func (m mockedBatchV1) Jobs(namespace string) batchv1.JobInterface {
@@ -138,7 +143,7 @@ func TestCheckJobConditions(t *testing.T) {
 	}
 }
 
-func TestWaitJobComplete(t *testing.T) {
+func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 	currentJob, err := readJobFromFile("../example/job.yaml")
 	if err != nil {
 		t.Error(err)
@@ -165,9 +170,224 @@ func TestWaitJobComplete(t *testing.T) {
 		},
 	}
 	ctx := context.Background()
-	err = job.WaitJobComplete(ctx, currentJob)
+	err = job.WaitJobComplete(ctx, currentJob, true)
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestWaitJobCompleteForContainer(t *testing.T) {
+	currentJob, err := readJobFromFile("../example/job.yaml")
+	if err != nil {
+		t.Error(err)
+	}
+	currentJob.Status.Active = 2
+	jobMock := mockedJob{
+		job: currentJob,
+	}
+	batchV1Mock := mockedBatchV1{
+		mockedJob: jobMock,
+	}
+
+	successPod := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodSucceeded,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+	successPod.Name = "success"
+	successContainer := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodRunning,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+	successContainer.Name = "success"
+	podList := v1core.PodList{
+		Items: []v1core.Pod{
+			successPod,
+			successContainer,
+		},
+	}
+	podMock := mockedPod{
+		podList: &podList,
+	}
+	coreV1Mock := mockedCoreV1{
+		mockedPod: podMock,
+	}
+	job := &Job{
+		CurrentJob: currentJob,
+		Args:       []string{"hoge", "fuga"},
+		Container:  "alpine",
+		Timeout:    10 * time.Minute,
+		client: mockedKubernetes{
+			mockedBatch: batchV1Mock,
+			mockedCore:  coreV1Mock,
+		},
+	}
+	ctx := context.Background()
+	err = job.WaitJobComplete(ctx, currentJob, false)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCompleteTargetContainer(t *testing.T) {
+	successPod := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodSucceeded,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+	successPod.Name = "success"
+	runningPod := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodRunning,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Running: &v1core.ContainerStateRunning{},
+					},
+				},
+			},
+		},
+	}
+	runningPod.Name = "running"
+	successContainer := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodRunning,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+	successContainer.Name = "success"
+	failedContainer := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodRunning,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 1,
+						},
+					},
+				},
+			},
+		},
+	}
+	failedContainer.Name = "failed"
+	anotherPod := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodRunning,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "debian",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+	anotherPod.Name = "another"
+	failedPod := v1core.Pod{
+		Status: v1core.PodStatus{
+			Phase: v1core.PodFailed,
+			ContainerStatuses: []v1core.ContainerStatus{
+				v1core.ContainerStatus{
+					Name: "alpine",
+					State: v1core.ContainerState{
+						Terminated: &v1core.ContainerStateTerminated{
+							ExitCode: 0,
+						},
+					},
+				},
+			},
+		},
+	}
+	failedPod.Name = "failed"
+
+	pods := []v1core.Pod{
+		successPod,
+		successContainer,
+	}
+	completed := completeTargetContainer(pods, "alpine")
+	if completed != true {
+		t.Error(errors.New("succeed container should be completed"))
+	}
+
+	pods = []v1core.Pod{
+		successContainer,
+		anotherPod,
+	}
+	completed = completeTargetContainer(pods, "alpine")
+	if completed != true {
+		t.Error(errors.New("another pod should be completed"))
+	}
+
+	pods = []v1core.Pod{
+		successContainer,
+		failedPod,
+	}
+	completed = completeTargetContainer(pods, "alpine")
+	if completed != true {
+		t.Error(errors.New("failed pod should be completed"))
+	}
+
+	pods = []v1core.Pod{
+		successContainer,
+		failedContainer,
+	}
+	if completed != true {
+		t.Error(errors.New("failed container should be completed"))
+	}
+
+	pods = []v1core.Pod{
+		runningPod,
+		successContainer,
+	}
+	completed = completeTargetContainer(pods, "alpine")
+	if completed == true {
+		t.Error(errors.New("running pod should not be completed"))
 	}
 }
 
