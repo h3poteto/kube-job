@@ -19,6 +19,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	v1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -171,13 +172,13 @@ func findContainerIndex(job *v1.Job, containerName string) (int, error) {
 }
 
 // WaitJob waits response of the job.
-func (j *Job) WaitJob(ctx context.Context, job *v1.Job) error {
+func (j *Job) WaitJob(ctx context.Context, job *v1.Job, ignoreSidecar bool) error {
 	log.Info("Waiting for running job...")
 
 	errCh := make(chan error, 1)
 	done := make(chan struct{}, 1)
 	go func() {
-		err := j.WaitJobComplete(ctx, job)
+		err := j.WaitJobComplete(ctx, job, ignoreSidecar)
 		if err != nil {
 			errCh <- err
 		}
@@ -200,7 +201,7 @@ func (j *Job) WaitJob(ctx context.Context, job *v1.Job) error {
 // WaitJobComplete waits the completion of the job.
 // If the job is failed, this function returns error.
 // If the job is succeeded, this function returns nil.
-func (j *Job) WaitJobComplete(ctx context.Context, job *v1.Job) error {
+func (j *Job) WaitJobComplete(ctx context.Context, job *v1.Job, ignoreSidecar bool) error {
 retry:
 	for {
 		time.Sleep(3 * time.Second)
@@ -211,11 +212,33 @@ retry:
 		if running.Status.Active == 0 {
 			return checkJobConditions(running.Status.Conditions)
 		}
+		if ignoreSidecar {
+			pods, err := j.FindPods(ctx, running)
+			if err != nil {
+				return err
+			}
+			if completeTargetContainer(pods, j.Container) {
+				log.Warn("Pod is still running, but specified container is completed, so job will be terminated")
+				return nil
+			}
+		}
 		continue retry
 
 	}
-	return nil
 
+}
+
+// FindPods finds pod in the job.
+func (j *Job) FindPods(ctx context.Context, job *v1.Job) ([]corev1.Pod, error) {
+	labels := parseLabels(job.Spec.Template.Labels)
+	listOptions := metav1.ListOptions{
+		LabelSelector: labels,
+	}
+	podList, err := j.client.CoreV1().Pods(job.Namespace).List(ctx, listOptions)
+	if err != nil {
+		return []corev1.Pod{}, err
+	}
+	return podList.Items, err
 }
 
 // checkJobConditions checks conditions of all jobs.
@@ -227,6 +250,41 @@ func checkJobConditions(conditions []v1.JobCondition) error {
 		}
 	}
 	return nil
+}
+
+// completeTargetContainer check all pods related a job.
+// Returns true, if all containers in the pods which are matched container name is completed.
+func completeTargetContainer(pods []corev1.Pod, containerName string) bool {
+	for _, pod := range pods {
+		if podIncludeContainer(pod, containerName) && !containerIsCompleted(pod, containerName) {
+			return false
+		}
+	}
+	return true
+}
+
+func podIncludeContainer(pod corev1.Pod, containerName string) bool {
+	for _, container := range pod.Spec.Containers {
+		if container.Name == containerName {
+			return true
+		}
+	}
+	return false
+}
+
+func containerIsCompleted(pod corev1.Pod, containerName string) bool {
+	if pod.Status.Phase == corev1.PodFailed || pod.Status.Phase == corev1.PodSucceeded {
+		return true
+	}
+	if pod.Status.Phase == corev1.PodPending {
+		return false
+	}
+	for _, status := range pod.Status.ContainerStatuses {
+		if status.Name == containerName && status.State.Terminated != nil && status.State.Terminated.ExitCode == 0 {
+			return true
+		}
+	}
+	return false
 }
 
 // Cleanup removes the job from the kubernetes cluster.
