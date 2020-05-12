@@ -172,13 +172,13 @@ func findContainerIndex(job *v1.Job, containerName string) (int, error) {
 }
 
 // WaitJob waits response of the job.
-func (j *Job) WaitJob(ctx context.Context, job *v1.Job, waitAll bool) error {
+func (j *Job) WaitJob(ctx context.Context, job *v1.Job, ignoreSidecar bool) error {
 	log.Info("Waiting for running job...")
 
 	errCh := make(chan error, 1)
 	done := make(chan struct{}, 1)
 	go func() {
-		err := j.WaitJobComplete(ctx, job, waitAll)
+		err := j.WaitJobComplete(ctx, job, ignoreSidecar)
 		if err != nil {
 			errCh <- err
 		}
@@ -201,7 +201,7 @@ func (j *Job) WaitJob(ctx context.Context, job *v1.Job, waitAll bool) error {
 // WaitJobComplete waits the completion of the job.
 // If the job is failed, this function returns error.
 // If the job is succeeded, this function returns nil.
-func (j *Job) WaitJobComplete(ctx context.Context, job *v1.Job, waitAll bool) error {
+func (j *Job) WaitJobComplete(ctx context.Context, job *v1.Job, ignoreSidecar bool) error {
 retry:
 	for {
 		time.Sleep(3 * time.Second)
@@ -212,12 +212,13 @@ retry:
 		if running.Status.Active == 0 {
 			return checkJobConditions(running.Status.Conditions)
 		}
-		if !waitAll {
+		if ignoreSidecar {
 			pods, err := j.FindPods(ctx, running)
 			if err != nil {
 				return err
 			}
 			if completeTargetContainer(pods, j.Container) {
+				log.Warn("Pod is still running, but specified container is completed, so job will be terminated")
 				return nil
 			}
 		}
@@ -263,8 +264,8 @@ func completeTargetContainer(pods []corev1.Pod, containerName string) bool {
 }
 
 func podIncludeContainer(pod corev1.Pod, containerName string) bool {
-	for _, status := range pod.Status.ContainerStatuses {
-		if status.Name == containerName {
+	for _, container := range pod.Spec.Containers {
+		if container.Name == containerName {
 			return true
 		}
 	}
@@ -274,6 +275,9 @@ func podIncludeContainer(pod corev1.Pod, containerName string) bool {
 func containerIsCompleted(pod corev1.Pod, containerName string) bool {
 	if pod.Status.Phase == corev1.PodFailed || pod.Status.Phase == corev1.PodSucceeded {
 		return true
+	}
+	if pod.Status.Phase == corev1.PodPending {
+		return false
 	}
 	for _, status := range pod.Status.ContainerStatuses {
 		if status.Name == containerName && status.State.Terminated != nil && status.State.Terminated.ExitCode == 0 {

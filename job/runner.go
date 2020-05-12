@@ -70,7 +70,10 @@ func (c CleanupType) String() string {
 }
 
 // Run a command on kubernetes cluster, and watch the log.
-func (j *Job) Run(waitAll bool) error {
+func (j *Job) Run(ignoreSidecar bool) error {
+	if ignoreSidecar {
+		log.Info("Ignore sidecar containers")
+	}
 	running, err := j.RunJob()
 	if err != nil {
 		return err
@@ -90,15 +93,15 @@ func (j *Job) Run(waitAll bool) error {
 		}
 	}()
 
-	err = j.WaitJob(ctx, running, waitAll)
+	err = j.WaitJob(ctx, running, ignoreSidecar)
 	time.Sleep(10 * time.Second)
 	cancel()
 	return err
 }
 
 // RunAndCleanup executes a command and clean up the job and pods.
-func (j *Job) RunAndCleanup(cleanupType string, waitAll bool) error {
-	err := j.Run(waitAll)
+func (j *Job) RunAndCleanup(cleanupType string, ignoreSidecar bool) error {
+	err := j.Run(ignoreSidecar)
 	if shouldCleanup(cleanupType, err) {
 		if e := j.Cleanup(); e != nil {
 			return e

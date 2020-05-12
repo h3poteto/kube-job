@@ -170,7 +170,7 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 		},
 	}
 	ctx := context.Background()
-	err = job.WaitJobComplete(ctx, currentJob, true)
+	err = job.WaitJobComplete(ctx, currentJob, false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -190,6 +190,14 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 	}
 
 	successPod := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodSucceeded,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -206,6 +214,14 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 	}
 	successPod.Name = "success"
 	successContainer := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodRunning,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -244,7 +260,7 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 		},
 	}
 	ctx := context.Background()
-	err = job.WaitJobComplete(ctx, currentJob, false)
+	err = job.WaitJobComplete(ctx, currentJob, true)
 	if err != nil {
 		t.Error(err)
 	}
@@ -252,6 +268,14 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 
 func TestCompleteTargetContainer(t *testing.T) {
 	successPod := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodSucceeded,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -268,6 +292,14 @@ func TestCompleteTargetContainer(t *testing.T) {
 	}
 	successPod.Name = "success"
 	runningPod := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodRunning,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -282,6 +314,14 @@ func TestCompleteTargetContainer(t *testing.T) {
 	}
 	runningPod.Name = "running"
 	successContainer := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodRunning,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -298,6 +338,14 @@ func TestCompleteTargetContainer(t *testing.T) {
 	}
 	successContainer.Name = "success"
 	failedContainer := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodRunning,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -314,6 +362,14 @@ func TestCompleteTargetContainer(t *testing.T) {
 	}
 	failedContainer.Name = "failed"
 	anotherPod := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "debian",
+					Image: "debian",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodRunning,
 			ContainerStatuses: []v1core.ContainerStatus{
@@ -330,6 +386,14 @@ func TestCompleteTargetContainer(t *testing.T) {
 	}
 	anotherPod.Name = "another"
 	failedPod := v1core.Pod{
+		Spec: v1core.PodSpec{
+			Containers: []v1core.Container{
+				{
+					Name:  "alpine",
+					Image: "alpine",
+				},
+			},
+		},
 		Status: v1core.PodStatus{
 			Phase: v1core.PodFailed,
 			ContainerStatuses: []v1core.ContainerStatus{
