@@ -290,13 +290,13 @@ func containerIsCompleted(pod corev1.Pod, containerName string) bool {
 // Cleanup removes the job from the kubernetes cluster.
 func (j *Job) Cleanup() error {
 	ctx := context.Background()
-	err := j.removePods(ctx)
+	log.Infof("Removing the job: %s", j.CurrentJob.Name)
+	options := metav1.DeleteOptions{}
+	err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(ctx, j.CurrentJob.Name, options)
 	if err != nil {
 		return err
 	}
-	log.Infof("Removing the job: %s", j.CurrentJob.Name)
-	options := metav1.DeleteOptions{}
-	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(ctx, j.CurrentJob.Name, options)
+	return j.removePods(ctx)
 }
 
 func (j *Job) removePods(ctx context.Context) error {
