@@ -95,21 +95,21 @@ func (j *Job) Run(ignoreSidecar bool) error {
 
 	err = j.WaitJob(ctx, running, ignoreSidecar)
 	time.Sleep(10 * time.Second)
-	cancel()
 	return err
 }
 
 // RunAndCleanup executes a command and clean up the job and pods.
 func (j *Job) RunAndCleanup(cleanupType string, ignoreSidecar bool) error {
 	err := j.Run(ignoreSidecar)
-	if shouldCleanup(cleanupType, err) {
-		if e := j.Cleanup(); e != nil {
-			return e
-		}
+	if !shouldCleanup(cleanupType, err) {
+		log.Info("Job should no clean up")
+	}
+	if e := j.Cleanup(); e != nil {
+		return e
 	}
 	return err
 }
 
-func shouldCleanup(cleanupType string, err error) bool {
-	return cleanupType == All.String() || (cleanupType == Succeeded.String() && err == nil) || (cleanupType == Failed.String() && err != nil)
+func shouldCleanup(cleanupType string, jobResult error) bool {
+	return cleanupType == All.String() || (cleanupType == Succeeded.String() && jobResult == nil) || (cleanupType == Failed.String() && jobResult != nil)
 }
