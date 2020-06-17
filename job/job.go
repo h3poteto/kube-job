@@ -217,9 +217,10 @@ retry:
 			if err != nil {
 				return err
 			}
-			if completeTargetContainer(pods, j.Container) {
+			finished, err := checkPodConditions(pods, j.Container)
+			if finished {
 				log.Warn("Pod is still running, but specified container is completed, so job will be terminated")
-				return nil
+				return err
 			}
 		}
 		continue retry
@@ -254,13 +255,14 @@ func checkJobConditions(conditions []v1.JobCondition) error {
 
 // completeTargetContainer check all pods related a job.
 // Returns true, if all containers in the pods which are matched container name is completed.
-func completeTargetContainer(pods []corev1.Pod, containerName string) bool {
+func checkPodConditions(pods []corev1.Pod, containerName string) (bool, error) {
 	for _, pod := range pods {
-		if podIncludeContainer(pod, containerName) && !containerIsCompleted(pod, containerName) {
-			return false
+		if podIncludeContainer(pod, containerName) {
+			finished, err := containerIsCompleted(pod, containerName)
+			return finished, err
 		}
 	}
-	return true
+	return false, nil
 }
 
 func podIncludeContainer(pod corev1.Pod, containerName string) bool {
@@ -272,19 +274,25 @@ func podIncludeContainer(pod corev1.Pod, containerName string) bool {
 	return false
 }
 
-func containerIsCompleted(pod corev1.Pod, containerName string) bool {
-	if pod.Status.Phase == corev1.PodFailed || pod.Status.Phase == corev1.PodSucceeded {
-		return true
+func containerIsCompleted(pod corev1.Pod, containerName string) (bool, error) {
+	if pod.Status.Phase == corev1.PodSucceeded {
+		return true, nil
+	}
+	if pod.Status.Phase == corev1.PodFailed {
+		return true, fmt.Errorf("%s Pod is failed", pod.Name)
 	}
 	if pod.Status.Phase == corev1.PodPending {
-		return false
+		return false, nil
 	}
 	for _, status := range pod.Status.ContainerStatuses {
-		if status.Name == containerName && status.State.Terminated != nil && status.State.Terminated.ExitCode == 0 {
-			return true
+		if status.Name == containerName && status.State.Terminated != nil {
+			if status.State.Terminated.ExitCode == 0 {
+				return true, nil
+			}
+			return true, fmt.Errorf("Container is failed: %s", status.State.Terminated.Reason)
 		}
 	}
-	return false
+	return false, nil
 }
 
 // Cleanup removes the job from the kubernetes cluster.
