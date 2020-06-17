@@ -414,44 +414,60 @@ func TestCompleteTargetContainer(t *testing.T) {
 		successPod,
 		successContainer,
 	}
-	completed := completeTargetContainer(pods, "alpine")
+	completed, err := checkPodConditions(pods, "alpine")
 	if completed != true {
 		t.Error(errors.New("succeed container should be completed"))
+	}
+	if err != nil {
+		t.Error(errors.New("succeed container should not have error"))
 	}
 
 	pods = []v1core.Pod{
 		successContainer,
 		anotherPod,
 	}
-	completed = completeTargetContainer(pods, "alpine")
+	completed, err = checkPodConditions(pods, "alpine")
 	if completed != true {
 		t.Error(errors.New("another pod should be completed"))
+	}
+	if err != nil {
+		t.Error(errors.New("another pod should not have error"))
 	}
 
 	pods = []v1core.Pod{
 		successContainer,
 		failedPod,
 	}
-	completed = completeTargetContainer(pods, "alpine")
+	completed, err = checkPodConditions(pods, "alpine")
 	if completed != true {
 		t.Error(errors.New("failed pod should be completed"))
+	}
+	if err == nil {
+		t.Error(errors.New("failed pod should have error"))
 	}
 
 	pods = []v1core.Pod{
 		successContainer,
 		failedContainer,
 	}
+	completed, err = checkPodConditions(pods, "alpine")
 	if completed != true {
 		t.Error(errors.New("failed container should be completed"))
 	}
+	if err == nil {
+		t.Error(errors.New("failed container should have error"))
+	}
 
 	pods = []v1core.Pod{
-		runningPod,
 		successContainer,
+		runningPod,
 	}
-	completed = completeTargetContainer(pods, "alpine")
+	completed, err = checkPodConditions(pods, "alpine")
 	if completed == true {
 		t.Error(errors.New("running pod should not be completed"))
+	}
+	if err != nil {
+		t.Error(errors.New("running pod should not have error"))
 	}
 }
 
