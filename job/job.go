@@ -253,16 +253,33 @@ func checkJobConditions(conditions []v1.JobCondition) error {
 	return nil
 }
 
-// completeTargetContainer check all pods related a job.
+// checkPodConditions check all pods related a job.
 // Returns true, if all containers in the pods which are matched container name is completed.
 func checkPodConditions(pods []corev1.Pod, containerName string) (bool, error) {
+	results := []bool{}
+	errs := []error{}
 	for _, pod := range pods {
 		if podIncludeContainer(pod, containerName) {
 			finished, err := containerIsCompleted(pod, containerName)
-			return finished, err
+			results = append(results, finished)
+			errs = append(errs, err)
 		}
 	}
-	return false, nil
+	if len(results) == 0 {
+		return false, nil
+	}
+	for _, r := range results {
+		if !r {
+			return false, nil
+		}
+	}
+	var err error
+	for _, e := range errs {
+		if e != nil {
+			err = e
+		}
+	}
+	return true, err
 }
 
 func podIncludeContainer(pod corev1.Pod, containerName string) bool {
