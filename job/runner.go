@@ -100,9 +100,13 @@ func (j *Job) Run(ignoreSidecar bool) error {
 
 // RunAndCleanup executes a command and clean up the job and pods.
 func (j *Job) RunAndCleanup(cleanupType string, ignoreSidecar bool) error {
+	if err := j.Validate(); err != nil {
+		return err
+	}
 	err := j.Run(ignoreSidecar)
 	if !shouldCleanup(cleanupType, err) {
 		log.Info("Job should no clean up")
+		return err
 	}
 	if e := j.Cleanup(); e != nil {
 		return e

@@ -141,6 +141,12 @@ func secureRandomStr(b int) string {
 	return fmt.Sprintf("%x", k)
 }
 
+// Validate checks job templates before run the job.
+func (j *Job) Validate() error {
+	_, err := findContainerIndex(j.CurrentJob, j.Container)
+	return err
+}
+
 // RunJob is run a kubernetes job, and returns the job information.
 func (j *Job) RunJob() (*v1.Job, error) {
 	ctx := context.Background()
@@ -168,7 +174,7 @@ func findContainerIndex(job *v1.Job, containerName string) (int, error) {
 			return index, nil
 		}
 	}
-	return 0, errors.New("Container does not exit in the template")
+	return 0, fmt.Errorf("Specified container %s does not exist in the template", containerName)
 }
 
 // WaitJob waits response of the job.
