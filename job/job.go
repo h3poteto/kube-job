@@ -50,7 +50,7 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 	if len(container) == 0 {
 		return nil, errors.New("Container is required")
 	}
-	client, err := newClient(configFile)
+	client, err := newClient(os.ExpandEnv(configFile))
 	if err != nil {
 		return nil, err
 	}
