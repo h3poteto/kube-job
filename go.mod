@@ -3,6 +3,7 @@ module github.com/h3poteto/kube-job
 go 1.13
 
 require (
+	github.com/evanphx/json-patch v4.2.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.8-0.20180830220226-ccc981bf8038 // indirect
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/hashicorp/hcl v1.0.1-0.20180906183839-65a6292f0157 // indirect
@@ -15,7 +16,7 @@ require (
 	github.com/spf13/cobra v0.0.4-0.20190109003409-7547e83b2d85
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.2-0.20190127094459-d104d259b338
-	k8s.io/api v0.18.6
-	k8s.io/apimachinery v0.18.6
-	k8s.io/client-go v0.18.6
+	k8s.io/api v0.18.8
+	k8s.io/apimachinery v0.18.8
+	k8s.io/client-go v0.18.8
 )
