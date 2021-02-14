@@ -2,7 +2,7 @@
 Package job provides simple functions to run a job on kubernetes.
 
 Usage:
-    import "github.com/h3poteto/kube-job/job"
+    import "github.com/h3poteto/kube-job/pkg/job"
 
 Run a job overriding the commands
 

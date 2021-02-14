@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.com/h3poteto/kube-job.svg?branch=master)](https://travis-ci.com/h3poteto/kube-job)
+[![Build](https://github.com/h3poteto/kube-job/workflows/Build/badge.svg)](https://github.com/h3poteto/kube-job/actions?query=workflow%3ABuild)
+[![E2E](https://github.com/h3poteto/kube-job/workflows/E2E/badge.svg)](https://github.com/h3poteto/kube-job/actions?query=workflow%3AE2E)
 [![GitHub release](http://img.shields.io/github/release/h3poteto/kube-job.svg?style=flat)](https://github.com/h3poteto/kube-job/releases)
-[![GoDoc](https://godoc.org/github.com/h3poteto/kube-job/job?status.svg)](https://godoc.org/github.com/h3poteto/kube-job/job)
+[![GoDoc](https://godoc.org/github.com/h3poteto/kube-job/pkg/job?status.svg)](https://godoc.org/github.com/h3poteto/kube-job/pkg/job)
 
 
 # kube-job
@@ -11,7 +12,7 @@
 - Wait for completion of the job execution
 - Get logs from kubernetes pods and output in stream
 
-This is a command line tool, but you can use job as a package. So when you write own job execition script for Kubernetes, you can embed job package in your golang source code and customize task recipe. Please check the [godoc](https://godoc.org/github.com/h3poteto/kube-job/job).
+This is a command line tool, but you can use job as a package. So when you write own job execition script for Kubernetes, you can embed job package in your golang source code and customize task recipe. Please check the [godoc](https://godoc.org/github.com/h3poteto/kube-job/pkg/job).
 
 ## Install
 ```
