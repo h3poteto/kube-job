@@ -1,0 +1,51 @@
+
+name: E2E
+
+on:
+  push:
+    branches:
+      - master
+
+  # Run tests for any PRs.
+  pull_request:
+
+env:
+  KIND_VERSION: v0.10.0
+  KUBECTL_VERSION: v1.20.2
+
+jobs:
+  e2e-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.0'
+      - uses: actions/checkout@master
+      - name: Install kubectl
+        env:
+          KUBECTL_VERSION: ${{ env.KUBECTL_VERSION }}
+          BIN_DIR: ${{ github.workspace }}/tools/
+        run: |
+          mkdir -p $BIN_DIR
+          curl -sSLo "$BIN_DIR/kubectl" "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          chmod +x "$BIN_DIR/kubectl"
+          echo "$BIN_DIR" >> "$GITHUB_PATH"
+      - uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: ${{ env.KIND_VERSION }}
+      - name: Info
+        run: |
+          kind version
+          kubectl cluster-info
+          kubectl version
+      - name: Build
+        run: |
+          make build
+      - name: Install ginkgo
+        run: |
+          go get -u github.com/onsi/ginkgo/ginkgo
+      - name: Testing
+        run: |
+          go mod download
+          ginkgo -r ./e2e

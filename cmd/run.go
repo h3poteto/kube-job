@@ -3,7 +3,7 @@ package cmd
 import (
 	"time"
 
-	"github.com/h3poteto/kube-job/job"
+	"github.com/h3poteto/kube-job/pkg/job"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
