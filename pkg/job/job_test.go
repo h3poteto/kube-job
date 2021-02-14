@@ -84,7 +84,7 @@ func (m mockedKubernetes) CoreV1() corev1.CoreV1Interface {
 }
 
 func TestRunJob(t *testing.T) {
-	currentJob, err := readJobFromFile("../example/job.yaml")
+	currentJob, err := readJobFromFile("../../example/job.yaml")
 	if err != nil {
 		t.Error(err)
 	}
@@ -144,7 +144,7 @@ func TestCheckJobConditions(t *testing.T) {
 }
 
 func TestWaitJobCompleteWithWaitAll(t *testing.T) {
-	currentJob, err := readJobFromFile("../example/job.yaml")
+	currentJob, err := readJobFromFile("../../example/job.yaml")
 	if err != nil {
 		t.Error(err)
 	}
@@ -177,7 +177,7 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 }
 
 func TestWaitJobCompleteForContainer(t *testing.T) {
-	currentJob, err := readJobFromFile("../example/job.yaml")
+	currentJob, err := readJobFromFile("../../example/job.yaml")
 	if err != nil {
 		t.Error(err)
 	}
@@ -486,7 +486,7 @@ func readJobFromFile(file string) (*v1.Job, error) {
 }
 
 func TestRemovePods(t *testing.T) {
-	currentJob, err := readJobFromFile("../example/job.yaml")
+	currentJob, err := readJobFromFile("../../example/job.yaml")
 	if err != nil {
 		t.Error(t)
 	}
