@@ -20,4 +20,4 @@ spec:
           - name: HOGE
             value: fuga
       restartPolicy: Never
-  backoffLimit: 2
+  backoffLimit: 0
