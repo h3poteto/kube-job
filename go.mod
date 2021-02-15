@@ -8,8 +8,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.1-0.20190110142458-7757cc9fdb85 // indirect
 	github.com/mattn/go-shellwords v1.0.4-0.20181023065652-3c0603ff9671
-	github.com/onsi/ginkgo v1.11.0
-	github.com/onsi/gomega v1.7.0
+	github.com/onsi/ginkgo v1.15.0
+	github.com/onsi/gomega v1.10.1
 	github.com/pelletier/go-toml v1.2.1-0.20181124002727-27c6b39a135b // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
