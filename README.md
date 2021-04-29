@@ -2,7 +2,7 @@
 [![E2E](https://github.com/h3poteto/kube-job/workflows/E2E/badge.svg)](https://github.com/h3poteto/kube-job/actions?query=workflow%3AE2E)
 [![GitHub release](http://img.shields.io/github/release/h3poteto/kube-job.svg?style=flat)](https://github.com/h3poteto/kube-job/releases)
 [![GoDoc](https://godoc.org/github.com/h3poteto/kube-job/pkg/job?status.svg)](https://godoc.org/github.com/h3poteto/kube-job/pkg/job)
-
+[![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
 
 # kube-job
 
