@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/hcl v1.0.1-0.20180906183839-65a6292f0157 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.1-0.20190110142458-7757cc9fdb85 // indirect
-	github.com/mattn/go-shellwords v1.0.4-0.20181023065652-3c0603ff9671
+	github.com/mattn/go-shellwords v1.0.11
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.11.0
 	github.com/pelletier/go-toml v1.2.1-0.20181124002727-27c6b39a135b // indirect
