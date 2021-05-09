@@ -117,7 +117,7 @@ fuga
 You can specify an URL as a template file, like this:
 
 ```
-$ ./kube-job run --template-file=https://github.com/h3poteto/kube-job/example/job.yaml --args="echo fuga" --container="alpine"
+$ ./kube-job run --template-file=https://raw.githubusercontent.com/h3poteto/kube-job/master/example/job.yaml --args="echo fuga" --container="alpine"
 ```
 
 If your template file is located in private repository, please export personal access token of GitHub. And please use an API URL endpoint.
