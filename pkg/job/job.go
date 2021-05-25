@@ -215,7 +215,7 @@ retry:
 		if err != nil {
 			return err
 		}
-		if running.Status.Active == 0 {
+		if running.Status.Active == 0 && (running.Status.Succeeded == 1 || running.Status.Failed == 1) {
 			return checkJobConditions(running.Status.Conditions)
 		}
 		if ignoreSidecar {

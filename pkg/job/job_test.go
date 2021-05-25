@@ -149,6 +149,8 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 		t.Error(err)
 	}
 	currentJob.Status.Active = 0
+	currentJob.Status.Succeeded = 1
+	currentJob.Status.Failed = 0
 	currentJob.Status.Conditions = []v1.JobCondition{
 		v1.JobCondition{
 			Type: "Complete",
@@ -182,6 +184,8 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 		t.Error(err)
 	}
 	currentJob.Status.Active = 2
+	currentJob.Status.Succeeded = 0
+	currentJob.Status.Failed = 0
 	jobMock := mockedJob{
 		job: currentJob,
 	}
