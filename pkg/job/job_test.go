@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"testing"
 	"time"
+	"strings"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
@@ -81,6 +82,18 @@ func (m mockedKubernetes) BatchV1() batchv1.BatchV1Interface {
 
 func (m mockedKubernetes) CoreV1() corev1.CoreV1Interface {
 	return m.mockedCore
+}
+
+func TestGenerateRandomName(t *testing.T) {
+	name := generateRandomName("foo")
+	if len(name) != 3 + 1 + 32 {
+		t.Error("name length is not correct")
+	}
+
+	name = generateRandomName(strings.Repeat("bar", 20))
+	if len(name) != 63 {
+		t.Error("name length is not correct")
+	}
 }
 
 func TestRunJob(t *testing.T) {
