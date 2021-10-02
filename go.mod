@@ -8,12 +8,10 @@ require (
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.12.0
-	github.com/pelletier/go-toml v1.2.1-0.20181124002727-27c6b39a135b // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.1.3
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.7.1
+	github.com/spf13/cobra v1.2.1
+	github.com/spf13/viper v1.8.1
 	k8s.io/api v0.21.5
 	k8s.io/apimachinery v0.21.5
 	k8s.io/client-go v0.21.5
