@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -129,7 +130,9 @@ func downloadFile(rawurl string) (string, error) {
 }
 
 func generateRandomName(name string) string {
-	return fmt.Sprintf("%s-%s", name, secureRandomStr(16))
+	// label must be no more than 63 characters long
+	lengthToGenerate := math.Min(float64(62 - len(name)), float64(32))
+	return fmt.Sprintf("%s-%s", name, secureRandomStr(int(lengthToGenerate) / 2))
 }
 
 // secureRandomStr is generate random string.

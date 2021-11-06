@@ -76,6 +76,7 @@ func (j *Job) Run(ignoreSidecar bool) error {
 	}
 	running, err := j.RunJob()
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 	log.Infof("Starting job: %s", running.Name)
