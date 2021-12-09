@@ -61,7 +61,7 @@ var _ = Describe("E2E", func() {
 		})
 		Context("Cleanup job when all", func() {
 			It("Job succeeded", func() {
-				cmd := exec.Command("../bin/kube-job", "run", "--template-file", "../example/job.yaml", "--args", "pwd", "--container", "alpine")
+				cmd := exec.Command("../kube-job", "run", "--template-file", "../example/job.yaml", "--args", "pwd", "--container", "alpine")
 				out, err := cmd.Output()
 				Expect(err).To(BeNil())
 				Expect(string(out)).To(Equal("/\n"))
@@ -78,7 +78,7 @@ var _ = Describe("E2E", func() {
 				Expect(len(jobList.Items)).To(Equal(0))
 			})
 			It("Job failed", func() {
-				cmd := exec.Command("../bin/kube-job", "run", "--template-file", "../example/job.yaml", "--args", "hoge", "--container", "alpine")
+				cmd := exec.Command("../kube-job", "run", "--template-file", "../example/job.yaml", "--args", "hoge", "--container", "alpine")
 				_, err := cmd.Output()
 				Expect(err).To(HaveOccurred())
 
@@ -96,7 +96,7 @@ var _ = Describe("E2E", func() {
 		})
 		Context("Cleanup job only succeeded", func() {
 			It("Job succeeded", func() {
-				cmd := exec.Command("../bin/kube-job", "run", "--template-file", "../example/job.yaml", "--args", "pwd", "--container", "alpine", "--cleanup", "succeeded")
+				cmd := exec.Command("../kube-job", "run", "--template-file", "../example/job.yaml", "--args", "pwd", "--container", "alpine", "--cleanup", "succeeded")
 				out, err := cmd.Output()
 				Expect(err).To(BeNil())
 				Expect(string(out)).To(Equal("/\n"))
@@ -113,7 +113,7 @@ var _ = Describe("E2E", func() {
 				Expect(len(jobList.Items)).To(Equal(0))
 			})
 			It("Job failed", func() {
-				cmd := exec.Command("../bin/kube-job", "run", "--template-file", "../example/job.yaml", "--args", "hoge", "--container", "alpine", "--cleanup", "succeeded")
+				cmd := exec.Command("../kube-job", "run", "--template-file", "../example/job.yaml", "--args", "hoge", "--container", "alpine", "--cleanup", "succeeded")
 				_, err := cmd.Output()
 				Expect(err).To(HaveOccurred())
 
@@ -131,7 +131,7 @@ var _ = Describe("E2E", func() {
 		})
 		Context("Cleanup job only failed", func() {
 			It("Job succeeded", func() {
-				cmd := exec.Command("../bin/kube-job", "run", "--template-file", "../example/job.yaml", "--args", "pwd", "--container", "alpine", "--cleanup", "failed")
+				cmd := exec.Command("../kube-job", "run", "--template-file", "../example/job.yaml", "--args", "pwd", "--container", "alpine", "--cleanup", "failed")
 				out, err := cmd.Output()
 				Expect(err).To(BeNil())
 				Expect(string(out)).To(Equal("/\n"))
@@ -148,7 +148,7 @@ var _ = Describe("E2E", func() {
 				Expect(len(jobList.Items)).To(Equal(1))
 			})
 			It("Job failed", func() {
-				cmd := exec.Command("../bin/kube-job", "run", "--template-file", "../example/job.yaml", "--args", "hoge", "--container", "alpine", "--cleanup", "failed")
+				cmd := exec.Command("../kube-job", "run", "--template-file", "../example/job.yaml", "--args", "hoge", "--container", "alpine", "--cleanup", "failed")
 				_, err := cmd.Output()
 				Expect(err).To(HaveOccurred())
 
