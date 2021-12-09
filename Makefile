@@ -11,16 +11,16 @@ mod: go.mod
 	go mod download
 
 build: mod
-	GOOS=linux GOARCH=amd64 $(BUILD_CMD) -o $(OUTDIR)/$(OUTPUT)
+	GOOS=linux GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT)
 
 mac: mod
-	GOOS=darwin GOARCH=amd64 $(BUILD_CMD) -o $(OUTDIR)/$(OUTPUT)
-	zip $(OUTDIR)/$(OUTPUT)_${VERSION}_darwin_amd64.zip $(OUTDIR)/$(OUTPUT)
+	GOOS=darwin GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT)
+	zip $(OUTDIR)/$(OUTPUT)_${VERSION}_darwin_amd64.zip $(OUTPUT)
 
 linux: mod
-	GOOS=linux GOARCH=amd64 $(BUILD_CMD) -o $(OUTDIR)/$(OUTPUT)
-	zip $(OUTDIR)/$(OUTPUT)_${VERSION}_linux_amd64.zip $(OUTDIR)/$(OUTPUT)
+	GOOS=linux GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT)
+	zip $(OUTDIR)/$(OUTPUT)_${VERSION}_linux_amd64.zip $(OUTPUT)
 
 windows: mod
-	GOOS=windows GOARCH=amd64 $(BUILD_CMD) -o $(OUTDIR)/$(OUTPUT).exe
-	zip $(OUTDIR)/$(OUTPUT)_${VERSION}_windows_amd64.zip $(OUTDIR)/$(OUTPUT).exe
+	GOOS=windows GOARCH=amd64 $(BUILD_CMD) -o $(OUTPUT).exe
+	zip $(OUTDIR)/$(OUTPUT)_${VERSION}_windows_amd64.zip $(OUTPUT).exe
