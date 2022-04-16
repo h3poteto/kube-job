@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -19,33 +19,31 @@ import (
 	"k8s.io/klog/v2"
 )
 
+var (
+	cfg *rest.Config
+)
+
+var _ = BeforeSuite(func() {
+	configfile := os.Getenv("KUBECONFIG")
+	if configfile == "" {
+		configfile = "$HOME/.kube/config"
+	}
+	restConfig, err := clientcmd.BuildConfigFromFlags("", os.ExpandEnv(configfile))
+	Expect(err).ShouldNot(HaveOccurred())
+
+	cfg = restConfig
+
+	client, err := kubernetes.NewForConfig(restConfig)
+	Expect(err).ShouldNot(HaveOccurred())
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+
+	err = waitUntilReady(ctx, client)
+	Expect(err).ShouldNot(HaveOccurred())
+})
+
 var _ = Describe("E2E", func() {
-	var (
-		cfg *rest.Config
-	)
-	BeforeSuite(func() {
-		configfile := os.Getenv("KUBECONFIG")
-		if configfile == "" {
-			configfile = "$HOME/.kube/config"
-		}
-		restConfig, err := clientcmd.BuildConfigFromFlags("", os.ExpandEnv(configfile))
-		if err != nil {
-			panic(err)
-		}
-		cfg = restConfig
-
-		client, err := kubernetes.NewForConfig(restConfig)
-		if err != nil {
-			panic(err)
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-		defer cancel()
-
-		if err := waitUntilReady(ctx, client); err != nil {
-			panic(err)
-		}
-	})
 	Describe("Run example job", func() {
 		AfterEach(func() {
 			client, err := kubernetes.NewForConfig(cfg)
