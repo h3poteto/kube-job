@@ -11,7 +11,7 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print the version number",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("kube-job v0.5.3")
+			fmt.Println("kube-job v0.6.0")
 		},
 	}
 
