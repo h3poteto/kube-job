@@ -14,7 +14,7 @@ jobs:
           fetch-depth: 1
       - uses: actions/setup-go@v3
         with:
-          go-version: '^1.16.0'
+          go-version-file: "go.mod"
       - name: Make all
         run: make all VERSION=${GITHUB_REF##*/}
       - name: Upload release binaries
