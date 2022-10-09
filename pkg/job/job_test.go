@@ -3,9 +3,9 @@ package job
 import (
 	"context"
 	"io/ioutil"
+	"strings"
 	"testing"
 	"time"
-	"strings"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
@@ -86,7 +86,7 @@ func (m mockedKubernetes) CoreV1() corev1.CoreV1Interface {
 
 func TestGenerateRandomName(t *testing.T) {
 	name := generateRandomName("foo")
-	if len(name) != 3 + 1 + 32 {
+	if len(name) != 3+1+32 {
 		t.Error("name length is not correct")
 	}
 
@@ -112,6 +112,7 @@ func TestRunJob(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Image:      "alpine:latest",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
@@ -178,6 +179,7 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Image:      "alpine:latest",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
@@ -269,6 +271,7 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Image:      "alpine:latest",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
@@ -516,6 +519,7 @@ func TestRemovePods(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Image:      "alpine:latest",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{

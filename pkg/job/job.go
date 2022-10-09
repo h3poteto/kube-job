@@ -33,6 +33,8 @@ type Job struct {
 	CurrentJob *v1.Job
 	// Command which override the current job struct.
 	Args []string
+	// Target docker image.
+	Image string
 	// Target container name.
 	Container string
 	// If you set 0, timeout is ignored.
@@ -41,7 +43,7 @@ type Job struct {
 
 // NewJob returns a new Job struct, and initialize kubernetes client.
 // It read the job definition yaml file, and unmarshal to batch/v1/Job.
-func NewJob(configFile, currentFile, command, container string, timeout time.Duration) (*Job, error) {
+func NewJob(configFile, currentFile, command, image, container string, timeout time.Duration) (*Job, error) {
 	if len(configFile) == 0 {
 		return nil, errors.New("Config file is required")
 	}
@@ -84,6 +86,7 @@ func NewJob(configFile, currentFile, command, container string, timeout time.Dur
 		client,
 		&currentJob,
 		args,
+		image,
 		container,
 		timeout,
 	}, nil
@@ -161,6 +164,10 @@ func (j *Job) RunJob() (*v1.Job, error) {
 	}
 	if len(j.Args) > 0 {
 		currentJob.Spec.Template.Spec.Containers[index].Args = j.Args
+	}
+
+	if len(j.Image) != 0 {
+		currentJob.Spec.Template.Spec.Containers[index].Image = j.Image
 	}
 
 	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(ctx, currentJob, metav1.CreateOptions{})
