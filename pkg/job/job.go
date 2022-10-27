@@ -6,9 +6,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"math"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -134,8 +134,8 @@ func downloadFile(rawurl string) (string, error) {
 
 func generateRandomName(name string) string {
 	// label must be no more than 63 characters long
-	lengthToGenerate := math.Min(float64(62 - len(name)), float64(32))
-	return fmt.Sprintf("%s-%s", name, secureRandomStr(int(lengthToGenerate) / 2))
+	lengthToGenerate := math.Min(float64(62-len(name)), float64(32))
+	return fmt.Sprintf("%s-%s", name, secureRandomStr(int(lengthToGenerate)/2))
 }
 
 // secureRandomStr is generate random string.
@@ -235,7 +235,7 @@ retry:
 			}
 			finished, err := checkPodConditions(pods, j.Container)
 			if finished {
-				log.Warn("Pod is still running, but specified container is completed, so job will be terminated")
+				log.Warn("Pod is still running, but specified container is terminated, so job will be removed")
 				return err
 			}
 		}
