@@ -8,7 +8,7 @@
 
 `kube-job` is a command line tool to run one off job on Kubernetes. The feature is
 
-- Override args argument and docker image in a kubernetes job template, and run the job.
+- Override args argument, namespace and docker image in a kubernetes job template, and run the job.
 - Wait for completion of the job execution
 - Get logs from kubernetes pods and output in stream
 
@@ -90,7 +90,7 @@ spec:
 
 ```
 
-`metadata.name` and `spec.template.spec.containers[0].args`, `spec.template.spec.containers[0].image` are overrided when you use `kube-job`.
+`metadata.name`,`metadata.namespace`, `spec.template.spec.containers[0].args` and `spec.template.spec.containers[0].image` are overrided when you use `kube-job`.
 
 #### Why override name?
 Kubernetes creates a job based on the job template yaml file, so if you use `kube-job` more than once at the same time, it is failed.
@@ -111,6 +111,8 @@ The container parameter receives which container do you want to execute the comm
 $ ./kube-job run --config=$HOME/.kube/config --template-file=./job.yaml --args="echo fuga" --container="alpine"
 fuga
 ```
+
+> You can optionally add `--namespace` to override namespace on the job template or `--image` to override the container image 
 
 ### Specify an URL as a template file
 

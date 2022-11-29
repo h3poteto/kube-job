@@ -113,6 +113,7 @@ func TestRunJob(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
@@ -180,6 +181,7 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
@@ -272,6 +274,7 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
@@ -520,6 +523,7 @@ func TestRemovePods(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
 		client: mockedKubernetes{
