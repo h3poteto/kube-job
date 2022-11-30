@@ -140,7 +140,7 @@ metadata:
   name: job-user-role
 rules:
 - apiGroups: [""]
-  verbs: ["get", "list", "delete", "deletecollection"]
+  verbs: ["get", "list", "delete" ]
   resources: ["pods", "pods/log"]
 - apiGroups: ["batch"]
   verbs: ["create", "get", "delete"]
