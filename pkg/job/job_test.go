@@ -500,28 +500,3 @@ func readJobFromFile(file string) (*v1.Job, error) {
 	currentJob.SetName(generateRandomName(currentJob.Name))
 	return &currentJob, nil
 }
-
-func TestRemovejob(t *testing.T) {
-	currentJob, err := readJobFromFile("../../example/job.yaml")
-	if err != nil {
-		t.Error(t)
-	}
-	podMock := mockedPod{
-		jobName: currentJob.Name,
-	}
-	coreV1Mock := mockedCoreV1{
-		mockedPod: podMock,
-	}
-	job := &Job{
-		CurrentJob: currentJob,
-		Args:       []string{"hoge", "fuga"},
-		Image:      "alpine:latest",
-		Namespace:  "default",
-		Container:  "alpine",
-		Timeout:    10 * time.Minute,
-		client: mockedKubernetes{
-			mockedCore: coreV1Mock,
-		},
-	}
-	job.Cleanup()
-}
