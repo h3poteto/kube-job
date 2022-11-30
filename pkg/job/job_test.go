@@ -530,8 +530,7 @@ func TestRemovePods(t *testing.T) {
 			mockedCore: coreV1Mock,
 		},
 	}
-	ctx := context.Background()
-	err = job.removePods(ctx)
+	err = job.Cleanup()
 	if err != nil {
 		t.Error(err)
 	}
