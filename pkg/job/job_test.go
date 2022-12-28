@@ -57,13 +57,6 @@ func (m mockedJob) Delete(context.Context, string, metav1.DeleteOptions) error {
 	return nil
 }
 
-func (m mockedPod) DeleteCollection(ctx context.Context, deleteOptions metav1.DeleteOptions, options metav1.ListOptions) error {
-	if options.LabelSelector != "job-name="+m.jobName {
-		return errors.New("label does not match")
-	}
-	return nil
-}
-
 func (m mockedPod) List(ctx context.Context, options metav1.ListOptions) (*v1core.PodList, error) {
 	return m.podList, nil
 }
@@ -506,33 +499,4 @@ func readJobFromFile(file string) (*v1.Job, error) {
 	}
 	currentJob.SetName(generateRandomName(currentJob.Name))
 	return &currentJob, nil
-}
-
-func TestRemovePods(t *testing.T) {
-	currentJob, err := readJobFromFile("../../example/job.yaml")
-	if err != nil {
-		t.Error(t)
-	}
-	podMock := mockedPod{
-		jobName: currentJob.Name,
-	}
-	coreV1Mock := mockedCoreV1{
-		mockedPod: podMock,
-	}
-	job := &Job{
-		CurrentJob: currentJob,
-		Args:       []string{"hoge", "fuga"},
-		Image:      "alpine:latest",
-		Namespace:  "default",
-		Container:  "alpine",
-		Timeout:    10 * time.Minute,
-		client: mockedKubernetes{
-			mockedCore: coreV1Mock,
-		},
-	}
-	ctx := context.Background()
-	err = job.removePods(ctx)
-	if err != nil {
-		t.Error(err)
-	}
 }

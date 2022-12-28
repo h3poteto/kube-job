@@ -337,23 +337,7 @@ func containerIsCompleted(pod corev1.Pod, containerName string) (bool, error) {
 func (j *Job) Cleanup() error {
 	ctx := context.Background()
 	log.Infof("Removing the job: %s", j.CurrentJob.Name)
-	options := metav1.DeleteOptions{}
-	err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(ctx, j.CurrentJob.Name, options)
-	if err != nil {
-		return err
-	}
-	return j.removePods(ctx)
-}
-
-func (j *Job) removePods(ctx context.Context) error {
-	// Use job-name to find pods which are related the job.
-	labels := "job-name=" + j.CurrentJob.Name
-	log.Infof("Remove related pods which labels is: %s", labels)
-	listOptions := metav1.ListOptions{
-		LabelSelector: labels,
-	}
-	options := metav1.DeleteOptions{
-		GracePeriodSeconds: nil, // Use default grace period seconds.
-	}
-	return j.client.CoreV1().Pods(j.CurrentJob.Namespace).DeleteCollection(ctx, options, listOptions)
+	propagationPolicy := metav1.DeletePropagationForeground
+	options := metav1.DeleteOptions{PropagationPolicy: &propagationPolicy}
+	return j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Delete(ctx, j.CurrentJob.Name, options)
 }
