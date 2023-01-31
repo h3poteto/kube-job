@@ -8,7 +8,7 @@
 
 `kube-job` is a command line tool to run one off job on Kubernetes. The feature is
 
-- Override args argument, namespace, docker image, resources in a kubernetes job template, and run the job.
+- Override args argument, namespace, docker image and resources in a kubernetes job template, and run the job.
 - Wait for completion of the job execution
 - Get logs from kubernetes pods and output in stream
 
