@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/batch/v1"
 	v1core "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	batchv1 "k8s.io/client-go/kubernetes/typed/batch/v1"
@@ -113,6 +114,16 @@ func TestRunJob(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Resources: v1core.ResourceRequirements{
+			Requests: v1core.ResourceList{
+				"memory": resource.MustParse("64Mi"),
+				"cpu": resource.MustParse("250m"),
+			},
+			Limits: v1core.ResourceList{
+				"memory": resource.MustParse("128Mi"),
+				"cpu": resource.MustParse("500m"),
+			},
+		},
 		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
@@ -181,6 +192,16 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Resources: v1core.ResourceRequirements{
+			Requests: v1core.ResourceList{
+				"memory": resource.MustParse("64Mi"),
+				"cpu": resource.MustParse("250m"),
+			},
+			Limits: v1core.ResourceList{
+				"memory": resource.MustParse("128Mi"),
+				"cpu": resource.MustParse("500m"),
+			},
+		},
 		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
@@ -274,6 +295,16 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Resources: v1core.ResourceRequirements{
+			Requests: v1core.ResourceList{
+				"memory": resource.MustParse("64Mi"),
+				"cpu": resource.MustParse("250m"),
+			},
+			Limits: v1core.ResourceList{
+				"memory": resource.MustParse("128Mi"),
+				"cpu": resource.MustParse("500m"),
+			},
+		},
 		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
@@ -523,6 +554,16 @@ func TestRemovePods(t *testing.T) {
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
 		Image:      "alpine:latest",
+		Resources: v1core.ResourceRequirements{
+			Requests: v1core.ResourceList{
+				"memory": resource.MustParse("64Mi"),
+				"cpu": resource.MustParse("250m"),
+			},
+			Limits: v1core.ResourceList{
+				"memory": resource.MustParse("128Mi"),
+				"cpu": resource.MustParse("500m"),
+			},
+		},
 		Namespace:  "default",
 		Container:  "alpine",
 		Timeout:    10 * time.Minute,
