@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -35,6 +36,8 @@ type Job struct {
 	Args []string
 	// Target docker image.
 	Image string
+      // Target resources.
+	Resources corev1.ResourceRequirements
 	// Target namespace
 	Namespace string
 	// Target container name.
@@ -45,7 +48,7 @@ type Job struct {
 
 // NewJob returns a new Job struct, and initialize kubernetes client.
 // It read the job definition yaml file, and unmarshal to batch/v1/Job.
-func NewJob(configFile, currentFile, command, image, namespace, container string, timeout time.Duration) (*Job, error) {
+func NewJob(configFile, currentFile, command, image, resources, namespace, container string, timeout time.Duration) (*Job, error) {
 	if len(configFile) == 0 {
 		return nil, errors.New("Config file is required")
 	}
@@ -54,6 +57,12 @@ func NewJob(configFile, currentFile, command, image, namespace, container string
 	}
 	if len(container) == 0 {
 		return nil, errors.New("Container is required")
+	}
+	var resourceRequirements corev1.ResourceRequirements
+	if len(resources) != 0 {
+		if err := json.Unmarshal([]byte(resources), &resourceRequirements); err != nil {
+			return nil, err
+		}
 	}
 	client, err := newClient(os.ExpandEnv(configFile))
 	if err != nil {
@@ -91,6 +100,7 @@ func NewJob(configFile, currentFile, command, image, namespace, container string
 		&currentJob,
 		args,
 		image,
+		resourceRequirements,
 		namespace,
 		container,
 		timeout,
@@ -170,11 +180,15 @@ func (j *Job) RunJob() (*v1.Job, error) {
 	if len(j.Args) > 0 {
 		currentJob.Spec.Template.Spec.Containers[index].Args = j.Args
 	}
-
 	if len(j.Image) != 0 {
 		currentJob.Spec.Template.Spec.Containers[index].Image = j.Image
 	}
-
+	if j.Resources.Requests != nil {
+		currentJob.Spec.Template.Spec.Containers[index].Resources.Requests = j.Resources.Requests
+	}
+	if j.Resources.Limits != nil {
+		currentJob.Spec.Template.Spec.Containers[index].Resources.Limits = j.Resources.Limits
+	}
 	resultJob, err := j.client.BatchV1().Jobs(j.CurrentJob.Namespace).Create(ctx, currentJob, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
