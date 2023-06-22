@@ -13,7 +13,7 @@
         "k8s.io/apimachinery",
         "k8s.io/client-go"
       ],
-      "matchUpdateTypes": ["major", "minor"],
+      "matchUpdateTypes": ["patch"],
       "enabled": false
     }
   ]
