@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
       - name: Install kubectl
