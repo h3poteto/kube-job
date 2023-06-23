@@ -3,7 +3,7 @@ module github.com/h3poteto/kube-job
 go 1.20
 
 require (
-	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
+	github.com/ghodss/yaml v1.0.1-0.20220118164431-d8423dcdf344
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/onsi/ginkgo/v2 v2.9.7
 	github.com/onsi/gomega v1.27.8
