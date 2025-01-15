@@ -18,8 +18,8 @@ func init() {
 	cobra.OnInitialize()
 	RootCmd.PersistentFlags().StringP("config", "", "", "Kubernetes config file path (If you don't set it, use environment variables `KUBECONFIG`)")
 	RootCmd.PersistentFlags().BoolP("verbose", "v", false, "Enable verbose mode")
-	viper.BindPFlag("config", RootCmd.PersistentFlags().Lookup("config"))
-	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
+	_ = viper.BindPFlag("config", RootCmd.PersistentFlags().Lookup("config"))
+	_ = viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
 
 	RootCmd.AddCommand(
 		runJobCmd(),

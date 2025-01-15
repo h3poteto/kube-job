@@ -2,7 +2,7 @@ package job
 
 import (
 	"context"
-	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -117,16 +117,16 @@ func TestRunJob(t *testing.T) {
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
 				"memory": resource.MustParse("64Mi"),
-				"cpu": resource.MustParse("250m"),
+				"cpu":    resource.MustParse("250m"),
 			},
 			Limits: v1core.ResourceList{
 				"memory": resource.MustParse("128Mi"),
-				"cpu": resource.MustParse("500m"),
+				"cpu":    resource.MustParse("500m"),
 			},
 		},
-		Namespace:  "default",
-		Container:  "alpine",
-		Timeout:    10 * time.Minute,
+		Namespace: "default",
+		Container: "alpine",
+		Timeout:   10 * time.Minute,
 		client: mockedKubernetes{
 			mockedBatch: batchV1Mock,
 		},
@@ -195,16 +195,16 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
 				"memory": resource.MustParse("64Mi"),
-				"cpu": resource.MustParse("250m"),
+				"cpu":    resource.MustParse("250m"),
 			},
 			Limits: v1core.ResourceList{
 				"memory": resource.MustParse("128Mi"),
-				"cpu": resource.MustParse("500m"),
+				"cpu":    resource.MustParse("500m"),
 			},
 		},
-		Namespace:  "default",
-		Container:  "alpine",
-		Timeout:    10 * time.Minute,
+		Namespace: "default",
+		Container: "alpine",
+		Timeout:   10 * time.Minute,
 		client: mockedKubernetes{
 			mockedBatch: batchV1Mock,
 		},
@@ -298,16 +298,16 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
 				"memory": resource.MustParse("64Mi"),
-				"cpu": resource.MustParse("250m"),
+				"cpu":    resource.MustParse("250m"),
 			},
 			Limits: v1core.ResourceList{
 				"memory": resource.MustParse("128Mi"),
-				"cpu": resource.MustParse("500m"),
+				"cpu":    resource.MustParse("500m"),
 			},
 		},
-		Namespace:  "default",
-		Container:  "alpine",
-		Timeout:    10 * time.Minute,
+		Namespace: "default",
+		Container: "alpine",
+		Timeout:   10 * time.Minute,
 		client: mockedKubernetes{
 			mockedBatch: batchV1Mock,
 			mockedCore:  coreV1Mock,
@@ -526,7 +526,7 @@ func TestCompleteTargetContainer(t *testing.T) {
 }
 
 func readJobFromFile(file string) (*v1.Job, error) {
-	bytes, err := ioutil.ReadFile(file)
+	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -557,16 +557,16 @@ func TestRemovePods(t *testing.T) {
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
 				"memory": resource.MustParse("64Mi"),
-				"cpu": resource.MustParse("250m"),
+				"cpu":    resource.MustParse("250m"),
 			},
 			Limits: v1core.ResourceList{
 				"memory": resource.MustParse("128Mi"),
-				"cpu": resource.MustParse("500m"),
+				"cpu":    resource.MustParse("500m"),
 			},
 		},
-		Namespace:  "default",
-		Container:  "alpine",
-		Timeout:    10 * time.Minute,
+		Namespace: "default",
+		Container: "alpine",
+		Timeout:   10 * time.Minute,
 		client: mockedKubernetes{
 			mockedCore: coreV1Mock,
 		},

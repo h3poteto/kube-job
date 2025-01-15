@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -36,7 +35,7 @@ type Job struct {
 	Args []string
 	// Target docker image.
 	Image string
-      // Target resources.
+	// Target resources.
 	Resources corev1.ResourceRequirements
 	// Target namespace
 	Namespace string
@@ -72,7 +71,7 @@ func NewJob(configFile, currentFile, command, image, resources, namespace, conta
 	if err != nil {
 		return nil, err
 	}
-	bytes, err := ioutil.ReadFile(downloaded)
+	bytes, err := os.ReadFile(downloaded)
 	if err != nil {
 		return nil, err
 	}
