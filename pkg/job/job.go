@@ -31,6 +31,8 @@ type Job struct {
 
 	// Batch v1 job struct.
 	CurrentJob *v1.Job
+	// Target pod name
+	Name string
 	// Command which override the current job struct.
 	Args []string
 	// Target docker image.
@@ -47,7 +49,7 @@ type Job struct {
 
 // NewJob returns a new Job struct, and initialize kubernetes client.
 // It read the job definition yaml file, and unmarshal to batch/v1/Job.
-func NewJob(configFile, currentFile, command, image, resources, namespace, container string, timeout time.Duration) (*Job, error) {
+func NewJob(configFile, currentFile, name, command, image, resources, namespace, container string, timeout time.Duration) (*Job, error) {
 	if len(configFile) == 0 {
 		return nil, errors.New("Config file is required")
 	}
@@ -80,7 +82,11 @@ func NewJob(configFile, currentFile, command, image, resources, namespace, conta
 	if err != nil {
 		return nil, err
 	}
-	currentJob.SetName(generateRandomName(currentJob.Name))
+	jobName := currentJob.Name
+	if len(name) > 0 {
+		jobName = name
+	}
+	currentJob.SetName(generateRandomName(jobName))
 	if len(namespace) > 0 {
 		currentJob.SetNamespace(namespace)
 	}
@@ -97,6 +103,7 @@ func NewJob(configFile, currentFile, command, image, resources, namespace, conta
 	return &Job{
 		client,
 		&currentJob,
+		name,
 		args,
 		image,
 		resourceRequirements,
