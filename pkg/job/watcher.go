@@ -40,6 +40,7 @@ func NewWatcher(client kubernetes.Interface, container string) *Watcher {
 // And it isn't necessary to stop the loop because the Job is watched in WaitJobComplete.
 func (w *Watcher) Watch(job *v1.Job, ctx context.Context) error {
 	currentPodList := []corev1.Pod{}
+	errCh := make(chan error, 1)
 retry:
 	for {
 		newPodList, err := w.FindPods(ctx, job)
@@ -48,11 +49,20 @@ retry:
 		}
 
 		incrementalPodList := diffPods(currentPodList, newPodList)
-		go w.WatchPods(ctx, incrementalPodList)
 
-		time.Sleep(1 * time.Second)
-		currentPodList = newPodList
-		continue retry
+		go func() {
+			if err := w.WatchPods(ctx, incrementalPodList); err != nil {
+				errCh <- err
+			}
+		}()
+
+		select {
+		case err := <-errCh:
+			return err
+		case <-time.After(1 * time.Second):
+			currentPodList = newPodList
+			continue retry
+		}
 	}
 }
 
@@ -85,12 +95,9 @@ func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
 		}(pod)
 	}
 
-	select {
-	case err := <-errCh:
-		if err != nil {
-			log.Error(err)
-			return err
-		}
+	if err := <-errCh; err != nil {
+		log.Error(err)
+		return err
 	}
 	wg.Wait()
 	return nil
@@ -130,10 +137,7 @@ retry:
 
 // isPendingPod check the pods whether it have pending container.
 func isPendingPod(pod corev1.Pod) bool {
-	if pod.Status.Phase == corev1.PodPending {
-		return true
-	}
-	return false
+	return pod.Status.Phase == corev1.PodPending
 }
 
 // parseLabels parses label sets, and build query string.

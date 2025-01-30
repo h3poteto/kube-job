@@ -167,7 +167,7 @@ var _ = Describe("E2E", func() {
 
 func waitUntilReady(ctx context.Context, client *kubernetes.Clientset) error {
 	klog.Info("Waiting until kubernetes cluster is ready")
-	err := wait.Poll(10*time.Second, 10*time.Minute, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(ctx, 10*time.Second, 10*time.Minute, true, wait.ConditionWithContextFunc(func(ctx context.Context) (bool, error) {
 		nodeList, err := client.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return false, fmt.Errorf("failed to list nodes: %v", err)
@@ -185,7 +185,7 @@ func waitUntilReady(ctx context.Context, client *kubernetes.Clientset) error {
 		}
 		klog.Info("all nodes are ready")
 		return true, nil
-	})
+	}))
 	return err
 }
 
@@ -208,7 +208,7 @@ func cleanup(ctx context.Context, client *kubernetes.Clientset) error {
 }
 
 func cleanupJobs(ctx context.Context, client *kubernetes.Clientset) error {
-	return wait.PollImmediate(3*time.Second, 1*time.Minute, func() (bool, error) {
+	return wait.PollUntilContextTimeout(ctx, 3*time.Second, 1*time.Minute, true, wait.ConditionWithContextFunc(func(ctx context.Context) (bool, error) {
 		jobList, err := client.BatchV1().Jobs(corev1.NamespaceAll).List(ctx, metav1.ListOptions{
 			LabelSelector: "app=example-job",
 		})
@@ -234,11 +234,11 @@ func cleanupJobs(ctx context.Context, client *kubernetes.Clientset) error {
 			}
 		}
 		return false, nil
-	})
+	}))
 }
 
 func cleanupPods(ctx context.Context, client *kubernetes.Clientset) error {
-	return wait.PollImmediate(3*time.Second, 1*time.Minute, func() (bool, error) {
+	return wait.PollUntilContextTimeout(ctx, 3*time.Second, 1*time.Minute, true, wait.ConditionWithContextFunc(func(ctx context.Context) (bool, error) {
 		podList, err := client.CoreV1().Pods(corev1.NamespaceAll).List(ctx, metav1.ListOptions{
 			LabelSelector: "app=example",
 		})
@@ -263,5 +263,5 @@ func cleanupPods(ctx context.Context, client *kubernetes.Clientset) error {
 			}
 		}
 		return false, nil
-	})
+	}))
 }
