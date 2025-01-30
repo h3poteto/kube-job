@@ -113,6 +113,7 @@ func TestRunJob(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Name:       "alpine-job",
 		Image:      "alpine:latest",
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
@@ -191,6 +192,7 @@ func TestWaitJobCompleteWithWaitAll(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Name:       "alpine-job",
 		Image:      "alpine:latest",
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
@@ -294,6 +296,7 @@ func TestWaitJobCompleteForContainer(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Name:       "alpine-job",
 		Image:      "alpine:latest",
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{
@@ -553,6 +556,7 @@ func TestRemovePods(t *testing.T) {
 	job := &Job{
 		CurrentJob: currentJob,
 		Args:       []string{"hoge", "fuga"},
+		Name:       "alpine",
 		Image:      "alpine:latest",
 		Resources: v1core.ResourceRequirements{
 			Requests: v1core.ResourceList{

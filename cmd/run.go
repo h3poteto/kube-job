@@ -10,8 +10,9 @@ import (
 )
 
 type runJob struct {
-	args          string
 	templateFile  string
+	name          string
+	args          string
 	image         string
 	resources     string
 	namespace     string
@@ -31,6 +32,7 @@ func runJobCmd() *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.StringVarP(&r.templateFile, "template-file", "f", "", "Job template file")
+	flags.StringVar(&r.name, "name", "", "Name of the job")
 	flags.StringVar(&r.args, "args", "", "Command which you want to run")
 	flags.StringVar(&r.image, "image", "", "Image which you want to run")
 	flags.StringVar(&r.resources, "resources", "", "Resources which you want to run")
@@ -55,7 +57,7 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 	}
 
 	log.Infof("Using config file: %s", config)
-	j, err := job.NewJob(config, r.templateFile, r.args, r.image, r.resources, r.namespace, r.container, (time.Duration(r.timeout) * time.Second))
+	j, err := job.NewJob(config, r.templateFile, r.name, r.args, r.image, r.resources, r.namespace, r.container, (time.Duration(r.timeout) * time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}
