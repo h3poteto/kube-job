@@ -10,8 +10,8 @@ on:
   pull_request:
 
 env:
-  KIND_VERSION: v0.22.0
-  KUBECTL_VERSION: v1.29.5
+  KIND_VERSION: v0.25.0
+  KUBECTL_VERSION: v1.31.5
 
 jobs:
   e2e-test:
@@ -28,7 +28,7 @@ jobs:
           BIN_DIR: ${{ github.workspace }}/tools/
         run: |
           mkdir -p $BIN_DIR
-          curl -sSLo "$BIN_DIR/kubectl" "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          curl -sSLo "$BIN_DIR/kubectl" "https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
           chmod +x "$BIN_DIR/kubectl"
           echo "$BIN_DIR" >> "$GITHUB_PATH"
       - uses: engineerd/setup-kind@v0.5.0
