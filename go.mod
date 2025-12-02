@@ -2,7 +2,7 @@ module github.com/h3poteto/kube-job
 
 go 1.24.0
 
-toolchain go1.24.6
+toolchain go1.25.5
 
 require (
 	github.com/ghodss/yaml v1.0.0
