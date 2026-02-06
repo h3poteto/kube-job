@@ -207,6 +207,10 @@ func (j *Job) RunJob() (*v1.Job, error) {
 
 // findContainerIndex finds target container from job definition.
 func findContainerIndex(job *v1.Job, containerName string) (int, error) {
+	if len(containerName) == 0 {
+		return 0, errors.New("No container name provided and multiple found in job template. Provide --container")
+	}
+
 	for index, container := range job.Spec.Template.Spec.Containers {
 		if container.Name == containerName {
 			return index, nil

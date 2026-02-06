@@ -70,7 +70,7 @@ func (c CleanupType) String() string {
 }
 
 // Run a command on kubernetes cluster, and watch the log.
-func (j *Job) Run(ignoreSidecar bool) error {
+func (j *Job) Run(ignoreSidecar bool, followLogs bool) error {
 	if ignoreSidecar {
 		log.Info("Ignore sidecar containers")
 	}
@@ -86,25 +86,31 @@ func (j *Job) Run(ignoreSidecar bool) error {
 	}
 	defer cancel()
 
-	watcher := NewWatcher(j.client, j.Container)
-	go func() {
-		err := watcher.Watch(running, ctx)
-		if err != nil {
-			log.Error(err)
-		}
-	}()
+	err = nil
+	if followLogs {
+		watcher := NewWatcher(j.client, j.Container)
+		go func() {
+			err := watcher.Watch(running, ctx)
+			if err != nil {
+				log.Error(err)
+			}
+		}()
 
-	err = j.WaitJob(ctx, running, ignoreSidecar)
-	time.Sleep(10 * time.Second)
+		err = j.WaitJob(ctx, running, ignoreSidecar)
+		time.Sleep(10 * time.Second)
+	} else {
+		log.Info("Not following logs. Provide --follow.")
+	}
+
 	return err
 }
 
 // RunAndCleanup executes a command and clean up the job and pods.
-func (j *Job) RunAndCleanup(cleanupType string, ignoreSidecar bool) error {
+func (j *Job) RunAndCleanup(cleanupType string, ignoreSidecar bool, followLogs bool) error {
 	if err := j.Validate(); err != nil {
 		return err
 	}
-	err := j.Run(ignoreSidecar)
+	err := j.Run(ignoreSidecar, followLogs)
 	if !shouldCleanup(cleanupType, err) {
 		log.Info("Job should no clean up")
 		return err
