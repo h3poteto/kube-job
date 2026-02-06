@@ -56,9 +56,6 @@ func NewJob(configFile, currentFile, name, command, image, resources, namespace,
 	if len(currentFile) == 0 {
 		return nil, errors.New("Template file is required")
 	}
-	if len(container) == 0 {
-		return nil, errors.New("Container is required")
-	}
 	var resourceRequirements corev1.ResourceRequirements
 	if len(resources) != 0 {
 		if err := json.Unmarshal([]byte(resources), &resourceRequirements); err != nil {
@@ -179,7 +176,13 @@ func (j *Job) RunJob() (*v1.Job, error) {
 	ctx := context.Background()
 
 	currentJob := j.CurrentJob.DeepCopy()
-	index, err := findContainerIndex(currentJob, j.Container)
+	index := 0
+	err := error(nil)
+
+	if len(currentJob.Spec.Template.Spec.Containers) > 1 {
+		index, err = findContainerIndex(currentJob, j.Container)
+	}
+
 	if err != nil {
 		return nil, err
 	}
