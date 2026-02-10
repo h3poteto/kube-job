@@ -111,6 +111,10 @@ func (j *Job) RunAndCleanup(cleanupType string, ignoreSidecar bool, followLogs b
 		return err
 	}
 	err := j.Run(ignoreSidecar, followLogs)
+	if !followLogs {
+		log.Debug("Skipping cleanup. Streaming logs not enabled.")
+		return err
+	}
 	if !shouldCleanup(cleanupType, err) {
 		log.Info("Job should no clean up")
 		return err
