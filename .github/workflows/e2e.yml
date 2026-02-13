@@ -9,8 +9,8 @@ on:
   pull_request:
 
 env:
-  KIND_VERSION: v0.29.0
-  KUBECTL_VERSION: v1.33.3
+  KIND_VERSION: v0.30.0
+  KUBECTL_VERSION: v1.34.4
 
 jobs:
   e2e-test:
