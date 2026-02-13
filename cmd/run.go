@@ -20,6 +20,7 @@ type runJob struct {
 	timeout       int
 	cleanup       string
 	ignoreSidecar bool
+	followLogs    bool
 }
 
 func runJobCmd() *cobra.Command {
@@ -37,10 +38,11 @@ func runJobCmd() *cobra.Command {
 	flags.StringVar(&r.image, "image", "", "Image which you want to run")
 	flags.StringVar(&r.resources, "resources", "", "Resources which you want to run")
 	flags.StringVar(&r.namespace, "namespace", "", "namespace where the job will be run")
-	flags.StringVar(&r.container, "container", "", "Container name which you want watch the log")
+	flags.StringVar(&r.container, "container", "", "Container name where arguments will be substituted (in case of multiple in spec).")
 	flags.IntVarP(&r.timeout, "timeout", "t", 0, "Timeout seconds")
 	flags.StringVar(&r.cleanup, "cleanup", "all", "Cleanup completed job after run the job. You can specify 'all', 'succeeded' or 'failed'.")
 	flags.BoolVar(&r.ignoreSidecar, "ignore-sidecar", false, "Wait until all containers stop. If you set false, wait only specified container.")
+	flags.BoolVar(&r.followLogs, "follow", true, "Specify if the logs should be streamed.")
 
 	return cmd
 }
@@ -62,7 +64,7 @@ func (r *runJob) run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err := j.RunAndCleanup(r.cleanup, r.ignoreSidecar); err != nil {
+	if err := j.RunAndCleanup(r.cleanup, r.ignoreSidecar, r.followLogs); err != nil {
 		log.Fatal(err)
 	}
 

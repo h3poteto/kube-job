@@ -56,9 +56,6 @@ func NewJob(configFile, currentFile, name, command, image, resources, namespace,
 	if len(currentFile) == 0 {
 		return nil, errors.New("Template file is required")
 	}
-	if len(container) == 0 {
-		return nil, errors.New("Container is required")
-	}
 	var resourceRequirements corev1.ResourceRequirements
 	if len(resources) != 0 {
 		if err := json.Unmarshal([]byte(resources), &resourceRequirements); err != nil {
@@ -180,6 +177,7 @@ func (j *Job) RunJob() (*v1.Job, error) {
 
 	currentJob := j.CurrentJob.DeepCopy()
 	index, err := findContainerIndex(currentJob, j.Container)
+
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +202,12 @@ func (j *Job) RunJob() (*v1.Job, error) {
 
 // findContainerIndex finds target container from job definition.
 func findContainerIndex(job *v1.Job, containerName string) (int, error) {
+	if len(job.Spec.Template.Spec.Containers) > 1 && len(containerName) == 0 {
+		return 0, errors.New("No container name provided and multiple found in job template. Provide --container")
+	}
+
 	for index, container := range job.Spec.Template.Spec.Containers {
-		if container.Name == containerName {
+		if len(job.Spec.Template.Spec.Containers) == 1 || container.Name == containerName {
 			return index, nil
 		}
 	}
