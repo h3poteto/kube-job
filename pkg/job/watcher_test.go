@@ -2,10 +2,14 @@ package job
 
 import (
 	"context"
+	"runtime"
 	"testing"
+	"time"
 
+	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes/fake"
 )
 
 func (m mockedPod) Get(context.Context, string, metav1.GetOptions) (*v1.Pod, error) {
@@ -98,5 +102,28 @@ func TestWaitToStartPod(t *testing.T) {
 	}
 	if pod.Name != runningPod.Name {
 		t.Error("pod does not match")
+	}
+}
+
+func TestWatchDoesNotLeakGoroutinesWhenNoNewPods(t *testing.T) {
+	client := fake.NewSimpleClientset()
+	watcher := NewWatcher(client, "alpine")
+	job := &batchv1.Job{}
+	job.Namespace = "default"
+	job.Spec.Template.Labels = map[string]string{"app": "leak-test"}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go watcher.Watch(job, ctx)
+
+	// Wait for the watch loop to reach steady state, then sample the goroutine count twice.
+	time.Sleep(2 * time.Second)
+	before := runtime.NumGoroutine()
+	time.Sleep(4 * time.Second)
+	after := runtime.NumGoroutine()
+
+	// With the leak, ~4 goroutines accumulate over 4 seconds; allow up to 2 for scheduler/GC jitter.
+	if growth := after - before; growth > 2 {
+		t.Errorf("goroutines leaked while watching a job with no new pods: %d -> %d (+%d)", before, after, growth)
 	}
 }

@@ -50,11 +50,13 @@ retry:
 
 		incrementalPodList := diffPods(currentPodList, newPodList)
 
-		go func() {
-			if err := w.WatchPods(ctx, incrementalPodList); err != nil {
-				errCh <- err
-			}
-		}()
+		if len(incrementalPodList) > 0 {
+			go func() {
+				if err := w.WatchPods(ctx, incrementalPodList); err != nil {
+					errCh <- err
+				}
+			}()
+		}
 
 		select {
 		case err := <-errCh:
@@ -68,6 +70,9 @@ retry:
 
 // WatchPods gets wait to start pod and tail the logs.
 func (w *Watcher) WatchPods(ctx context.Context, pods []corev1.Pod) error {
+	if len(pods) == 0 {
+		return nil
+	}
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(pods))
 
