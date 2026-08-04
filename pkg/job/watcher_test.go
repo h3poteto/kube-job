@@ -114,7 +114,9 @@ func TestWatchDoesNotLeakGoroutinesWhenNoNewPods(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go watcher.Watch(job, ctx)
+	go func() {
+		_ = watcher.Watch(job, ctx)
+	}()
 
 	// Wait for the watch loop to reach steady state, then sample the goroutine count twice.
 	time.Sleep(2 * time.Second)
