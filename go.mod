@@ -6,7 +6,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/mattn/go-shellwords v1.0.16
 	github.com/onsi/ginkgo/v2 v2.33.1
-	github.com/onsi/gomega v1.42.1
+	github.com/onsi/gomega v1.44.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.10.2
 	github.com/spf13/cobra v1.10.2
